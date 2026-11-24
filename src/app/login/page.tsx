@@ -6,6 +6,7 @@ import { ArrowRight, Building2, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { setAuth, Role } from "@/store/store";
 import { toast } from "sonner";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   const [role, setRole] = useState<Role>("customer");
@@ -41,9 +42,10 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f4f7fb] flex">
+    <main data-bank-app data-login-page className="relative min-h-screen bg-[#f4f7fb] flex">
+      <div className="absolute right-5 top-5 z-20"><ThemeToggle /></div>
       <section className="hidden lg:flex w-[58%] bg-[#102d25] relative overflow-hidden flex-col justify-between p-14 text-white">
-        <div className="absolute inset-0 opacity-20" style={{backgroundImage:"radial-gradient(circle at 20% 20%, #74b69b 0, transparent 32%), radial-gradient(circle at 80% 70%, #1e7a5c 0, transparent 35%)"}} />
+        <div className="login-art absolute inset-0 opacity-25" />
         <div className="relative z-10 flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-[#65d5a4] text-[#102d25] grid place-items-center"><Building2 size={22} /></div>
           <span className="text-xl font-semibold tracking-tight">Trellis Bank</span>
@@ -51,13 +53,13 @@ export default function LoginPage() {
         <div className="relative z-10 max-w-xl pb-12">
           <div className="mb-6 h-12 w-12 rounded-full border border-white/20 grid place-items-center"><ShieldCheck size={24} /></div>
           <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em]">Banking that moves at the speed of you.</h1>
-          <p className="mt-6 max-w-md text-lg leading-8 text-emerald-100/75">Manage accounts, move money, and build your future with one secure financial workspace.</p>
+          <p className="mt-6 max-w-md text-lg leading-8 text-blue-100/75">Manage accounts, move money, and build your future with one secure financial workspace.</p>
         </div>
-        <p className="relative z-10 text-xs text-emerald-100/60">© 2026 Trellis Digital Bank · FDIC Insured</p>
+        <p className="relative z-10 text-xs text-blue-100/60">© 2026 Trellis Digital Bank · FDIC Insured</p>
       </section>
 
       <section className="flex-1 flex items-center justify-center px-6 py-10">
-        <div className="w-full max-w-[420px]">
+        <div data-login-panel className="w-full max-w-[420px] rounded-2xl border border-[#e1e7f0] bg-white p-7 shadow-[0_20px_60px_rgba(27,39,58,.08)] md:p-9">
           <div className="lg:hidden mb-10 flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-[#153f33] text-white grid place-items-center"><Building2 size={21} /></div>
             <span className="text-xl font-semibold">Trellis Bank</span>
