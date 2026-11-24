@@ -24,6 +24,7 @@ Set `DATABASE_URL` to a PostgreSQL connection string and `AUTH_SECRET` to a stro
 - Redux Toolkit slices for authentication, accounts, transactions, and loans
 - Recharts financial activity and cash-flow visualizations
 - Sonner toast notifications for success and error feedback
+- Persistent light and dark themes inspired by the dashboard palette in `src/assets/dashboard.png`
 - Responsive desktop, tablet, and mobile UI
 - Server-side transfer validation and route authorization
 
