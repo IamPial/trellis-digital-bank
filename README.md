@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trellis Digital Bank
 
-## Getting Started
+A professional, role-based digital banking simulation built with Next.js App Router and TypeScript.
 
-First, run the development server:
+## Features
+
+- Admin, Bank Staff, and Customer workspaces
+- Customer accounts, balances, transfers, transactions, loans, and statements
+- Staff customer operations and pending review workflows
+- Admin customer, account, and loan management views
+- Redux Toolkit slices for authentication, accounts, transactions, and loans
+- Recharts financial activity and cash-flow visualizations
+- Responsive desktop, tablet, and mobile UI
+- Server-side transfer validation and route authorization
+
+## Demo Credentials
+
+Choose a role on the sign-in screen:
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@trellis.bank | trellisdemo |
+| Bank Staff | staff@trellis.bank | trellisdemo |
+| Customer | jamie@trellis.bank | trellisdemo |
+
+## Local Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Redux store: `src/store/store.ts`
+- Redux provider and typed hooks: `src/store/`
+- Application pages: `src/app/`
+- Server authentication route: `src/app/api/auth/login/route.ts`
+- Secure transfer API: `src/app/api/banking/transfer/route.ts`
+- Dashboard route guard: `src/middleware.ts`
 
-## Learn More
+## Transaction Processing
 
-To learn more about Next.js, take a look at the following resources:
+The transfer API validates role, 4-digit PIN format, positive server-side amount, recipient existence, and sufficient sender balance. Sender and recipient balances are updated together in one server operation, and a unique transaction reference is returned. This assessment demo uses in-memory account data; production deployments should use PostgreSQL or another transactional database.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment Variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+No environment variables are required for the demo. Production deployment may add `DATABASE_URL`, `AUTH_SECRET`, and payment-provider credentials as integrations are added.
