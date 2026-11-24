@@ -2,8 +2,25 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #f7f9fc;
-  --foreground: #111827;
+  color-scheme: light;
+  --background: #f4f7fc;
+  --foreground: #172033;
+  --surface: #ffffff;
+  --surface-muted: #edf2f9;
+  --border: #e1e7f0;
+  --text-muted: #738096;
+  --accent: #2864ea;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --background: #0a101c;
+  --foreground: #e7edf7;
+  --surface: #111a2a;
+  --surface-muted: #172338;
+  --border: #26334a;
+  --text-muted: #93a2ba;
+  --accent: #3977ff;
 }
 
 * { box-sizing: border-box; }
@@ -13,9 +30,85 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, sans-serif;
+  transition: background-color 180ms ease, color 180ms ease;
 }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 
+/* Align the existing palette with the blue banking dashboard reference. */
+:where([class*="bg-[#176b50]"]) { background-color: #2864ea !important; }
+:where([class*="bg-[#125940]"]) { background-color: #1e50c4 !important; }
+:where([class*="bg-[#102d25]"]) { background-color: #0b1220 !important; }
+:where([class*="bg-[#153f33]"]) { background-color: #172b50 !important; }
+:where([class*="text-[#176b50]"], [class*="text-[#277d62]"], [class*="text-[#1d6b52]"], [class*="text-[#1d6751]"]) { color: #2864ea !important; }
+:where([class*="bg-[#edf5f1]"], [class*="bg-[#edf7f3]"], [class*="bg-[#f2f8f5]"]) { background-color: #edf3ff !important; }
+:where([class*="border-[#bcdacf]"]) { border-color: #c5d6ff !important; }
+
+html.dark body { background: var(--background); color: var(--foreground); }
+html.dark [data-bank-app] {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+html.dark [data-bank-app] aside,
+html.dark [data-bank-app] header,
+html.dark [data-bank-app] [class*="bg-white"],
+html.dark [data-login-panel] {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+html.dark [data-bank-app] [class*="bg-[#f"],
+html.dark [data-bank-app] [class*="bg-[#e"],
+html.dark [data-bank-app] [class*="bg-[#d"] {
+  background-color: var(--surface-muted) !important;
+}
+html.dark [data-bank-app] [class*="border-"] {
+  border-color: var(--border) !important;
+}
+html.dark [data-bank-app] [class*="text-[#"] {
+  color: #a7b5ca !important;
+}
+html.dark [data-bank-app] [class*="text-[#176b50]"],
+html.dark [data-bank-app] [class*="text-[#277d62]"],
+html.dark [data-bank-app] [class*="text-[#1d6b52]"],
+html.dark [data-bank-app] [class*="text-[#1d6751]"] {
+  color: #6f9aff !important;
+}
+html.dark [data-bank-app] input,
+html.dark [data-bank-app] select,
+html.dark [data-bank-app] textarea {
+  background-color: #0d1523;
+  border-color: var(--border);
+  color: var(--foreground);
+}
+html.dark [data-bank-app] input::placeholder,
+html.dark [data-bank-app] textarea::placeholder {
+  color: #73839c;
+}
+html.dark .login-art {
+  background-image:
+    radial-gradient(circle at 20% 20%, #477cff 0, transparent 34%),
+    radial-gradient(circle at 80% 70%, #193c82 0, transparent 38%);
+}
+html.dark [data-bank-app] .recharts-cartesian-grid line {
+  stroke: #26334a;
+}
+html.dark [data-sonner-toaster] {
+  --normal-bg: #111a2a;
+  --normal-text: #e7edf7;
+  --normal-border: #26334a;
+}
+
+.login-art {
+  background-image:
+    radial-gradient(circle at 20% 20%, #79a2ff 0, transparent 34%),
+    radial-gradient(circle at 80% 70%, #2864ea 0, transparent 38%);
+}
+[data-login-panel] {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: #d7dce5; border-radius: 999px; }
+::-webkit-scrollbar-thumb { background: #cbd4e2; border-radius: 999px; }
+html.dark ::-webkit-scrollbar-thumb { background: #34425a; }
