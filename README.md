@@ -2,6 +2,19 @@
 
 A professional, role-based digital banking simulation built with Next.js App Router and TypeScript.
 
+## PostgreSQL and Prisma
+
+The application uses PostgreSQL with Prisma ORM.
+
+```bash
+cp .env.example .env
+npm run db:migrate
+npm run db:seed
+npm run dev
+```
+
+Set `DATABASE_URL` to a PostgreSQL connection string and `AUTH_SECRET` to a strong random secret.
+
 ## Features
 
 - Admin, Bank Staff, and Customer workspaces
@@ -10,6 +23,7 @@ A professional, role-based digital banking simulation built with Next.js App Rou
 - Admin customer, account, and loan management views
 - Redux Toolkit slices for authentication, accounts, transactions, and loans
 - Recharts financial activity and cash-flow visualizations
+- Sonner toast notifications for success and error feedback
 - Responsive desktop, tablet, and mobile UI
 - Server-side transfer validation and route authorization
 

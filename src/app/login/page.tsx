@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Building2, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { setAuth, Role } from "@/store/store";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [role, setRole] = useState<Role>("customer");
@@ -15,11 +16,28 @@ export default function LoginPage() {
   const login = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
-    const names = { admin: "Alex Morgan", staff: "Jordan Lee", customer: "Jamie Parker" };
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    dispatch(setAuth({ role, name: names[role] }));
-    document.cookie = `trellis_role=${role}; path=/; max-age=86400`;
-    router.push("/dashboard");
+    try {
+      const form = new FormData(event.currentTarget as HTMLFormElement);
+      const email = role === "admin" ? "admin@trellis.bank" : role === "staff" ? "staff@trellis.bank" : "jamie@trellis.bank";
+      const password = String(form.get("password") || "trellisdemo");
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(result.error || "Sign-in failed");
+        return;
+      }
+      dispatch(setAuth({ role: result.role, name: result.name }));
+      toast.success("Signed in successfully");
+      router.push("/dashboard");
+    } catch {
+      toast.error("Unable to sign in. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,13 +69,13 @@ export default function LoginPage() {
           <form onSubmit={login} className="mt-8 space-y-5">
             <label className="block">
               <span className="text-sm font-medium text-[#33413b]">Email address</span>
-              <input defaultValue="jamie@trellis.bank" className="mt-2 h-12 w-full rounded-xl border border-[#dde4df] bg-white px-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
+              <input name="email" defaultValue="jamie@trellis.bank" className="mt-2 h-12 w-full rounded-xl border border-[#dde4df] bg-white px-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
             </label>
             <label className="block">
               <span className="text-sm font-medium text-[#33413b]">Password</span>
               <div className="relative mt-2">
                 <LockKeyhole className="absolute left-4 top-3.5 text-[#96a09a]" size={18} />
-                <input type="password" defaultValue="trellisdemo" className="h-12 w-full rounded-xl border border-[#dde4df] bg-white pl-11 pr-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
+                <input name="password" type="password" defaultValue="trellisdemo" className="h-12 w-full rounded-xl border border-[#dde4df] bg-white pl-11 pr-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
               </div>
             </label>
             <div>

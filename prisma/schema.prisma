@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  staff
+  customer
+}
+
+enum AccountStatus {
+  active
+  frozen
+  blocked
+}
+
+enum AccountType {
+  savings
+  current
+  business
+}
+
+enum TransactionType {
+  deposit
+  withdrawal
+  fund_transfer
+  loan_disbursement
+  loan_repayment
+}
+
+enum TransactionStatus {
+  pending
+  completed
+  failed
+  reversed
+}
+
+enum LoanStatus {
+  pending
+  under_review
+  approved
+  rejected
+  active
+  completed
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  transactionPinHash String @default("")
+  fullName     String
+  role         Role
+  status       String    @default("active")
+  accounts     Account[]
+  loans        Loan[]
+  notifications Notification[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Account {
+  id            String        @id @default(uuid())
+  customerId    String
+  customer      User          @relation(fields: [customerId], references: [id])
+  accountNumber String        @unique
+  accountType   AccountType
+  balance       Decimal       @default(0) @db.Decimal(14, 2)
+  dailyLimit    Decimal       @default(10000) @db.Decimal(14, 2)
+  status        AccountStatus @default(active)
+  sentTransactions     Transaction[] @relation("SenderAccount")
+  receivedTransactions Transaction[] @relation("ReceiverAccount")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Transaction {
+  id              String            @id @default(uuid())
+  transactionId   String            @unique
+  senderAccountId String?
+  senderAccount   Account?          @relation("SenderAccount", fields: [senderAccountId], references: [id])
+  receiverAccountId String?
+  receiverAccount Account?          @relation("ReceiverAccount", fields: [receiverAccountId], references: [id])
+  transactionType TransactionType
+  amount          Decimal           @db.Decimal(14, 2)
+  fee             Decimal           @default(0) @db.Decimal(14, 2)
+  status          TransactionStatus @default(pending)
+  description     String?
+  createdAt       DateTime          @default(now())
+}
+
+model Loan {
+  id                   String     @id @default(uuid())
+  customerId           String
+  customer             User       @relation(fields: [customerId], references: [id])
+  loanType             String
+  requestedAmount      Decimal    @db.Decimal(14, 2)
+  loanDurationMonths   Int
+  monthlyIncome        Decimal?   @db.Decimal(14, 2)
+  employmentStatus     String?
+  description          String?
+  status               LoanStatus @default(pending)
+  approvedAmount       Decimal?   @db.Decimal(14, 2)
+  remainingBalance     Decimal?   @db.Decimal(14, 2)
+  internalNotes        String?
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+}
