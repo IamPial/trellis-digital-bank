@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowDownLeft, ArrowUpRight, Bell, Building2, ChevronDown,
@@ -37,9 +37,9 @@ export default function BankWorkspace({ section = "overview" }: Props) {
   const auth = useAppSelector((state) => state.auth);
   const [mobileNav, setMobileNav] = useState(false);
   const [roleReady, setRoleReady] = useState(false);
-  const setNotice = (message: string, type: "success" | "error" = "success") => {
+  const setNotice = useCallback((message: string, type: "success" | "error" = "success") => {
     toast[type](message);
-  };
+  }, []);
 
   useEffect(() => {
     if (auth.role) { setRoleReady(true); return; }
@@ -62,6 +62,7 @@ export default function BankWorkspace({ section = "overview" }: Props) {
 
   const logout = () => {
     document.cookie = "trellis_role=; path=/; max-age=0";
+    document.cookie = "trellis_session=; path=/; max-age=0";
     dispatch(clearAuth());
     router.replace("/login");
   };
@@ -248,19 +249,43 @@ function CustomerContent({ section, dispatch, setNotice }: { section: string; di
 }
 
 function OperationsContent({ role, section, dispatch, setNotice }: { role: "admin"|"staff"; section: string; dispatch: any; setNotice: (value: string, type?: "success" | "error") => void }) {
+  const transactions = useAppSelector((state) => state.transactions.items);
   const [customers, setCustomers] = useState(customersSeed);
   const [query, setQuery] = useState("");
-  const [loanRows, setLoanRows] = useState([
-    { id:"LN-2401", customer:"Jamie Parker", amount:"$24,000", type:"Personal", status:"Pending" },
-    { id:"LN-2398", customer:"Sophia Carter", amount:"$60,000", type:"Home", status:"Under Review" },
-    { id:"LN-2389", customer:"Marcus Chen", amount:"$35,000", type:"Business", status:"Pending" },
-  ]);
+  const [loanRows, setLoanRows] = useState<{id:string;customer:string;amount:string;type:string;status:string}[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [freeze, setFreeze] = useState<Record<string, boolean>>({});
 
   const filteredCustomers = customers.filter((customer) => `${customer.name} ${customer.email} ${customer.account}`.toLowerCase().includes(query.toLowerCase()));
 
-  const updateLoan = (id: string, status: "Approved"|"Rejected") => {
+  useEffect(() => {
+    if (section !== "loan-review" && section !== "loan-management") return;
+    fetch("/api/banking/loans")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load loan applications");
+        return response.json();
+      })
+      .then(({ loans }) => setLoanRows(loans.map((loan: {id:string;customer?:{fullName:string};loanType:string;requestedAmount:string|number;status:string}) => ({
+        id: loan.id,
+        customer: loan.customer?.fullName || "Customer",
+        amount: `$${Number(loan.requestedAmount).toLocaleString()}`,
+        type: loan.loanType,
+        status: loan.status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase()),
+      }))))
+      .catch(() => setNotice("Unable to load loan applications.", "error"));
+  }, [section, setNotice]);
+
+  const updateLoan = async (id: string, status: "Approved"|"Rejected"|"Under Review") => {
+    const response = await fetch(`/api/banking/loans/${id}/review`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: status === "Under Review" ? "under_review" : status.toLowerCase() }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      setNotice(result.error || "Unable to update loan application.", "error");
+      return;
+    }
     setLoanRows((rows) => rows.map((row) => row.id === id ? { ...row, status } : row));
     setNotice(role === "staff" ? "Application forwarded to the admin for approval." : `Loan application ${status.toLowerCase()}.`);
   };
@@ -278,12 +303,11 @@ function OperationsContent({ role, section, dispatch, setNotice }: { role: "admi
   );
 
   if (section === "transactions" || section === "pending-requests") {
-    const rows = useAppSelector((state)=>state.transactions.items);
-    return <div><div className="mb-4 flex gap-3"><input placeholder="Search transaction ID" className="h-11 w-full max-w-sm rounded-lg border bg-white px-3 text-sm"/><select className="h-11 rounded-lg border bg-white px-3 text-sm"><option>All types</option><option>Deposit</option><option>Withdrawal</option></select></div><Panel><div className="overflow-x-auto"><table className="w-full min-w-175 text-sm"><thead><tr className="text-left text-xs text-[#929b96]"><th className="pb-3">Transaction</th><th>Description</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody>{rows.map((row)=><tr key={row.id} className="border-t"><td className="py-3.5 font-semibold">{row.id}</td><td>{row.name}</td><td className="font-semibold">${Math.abs(row.amount).toLocaleString()}</td><td><span className="rounded-full bg-[#edf7f3] px-2 py-1 text-xs text-[#277d62]">{row.status}</span></td><td>{row.date}</td><td>{role==="staff" && <button onClick={()=>setNotice("Transaction flagged for admin review.")} className="text-xs font-semibold text-[#b06e30]">Flag</button>}</td></tr>)}</tbody></table></div></Panel></div>;
+    return <div><div className="mb-4 flex gap-3"><input placeholder="Search transaction ID" className="h-11 w-full max-w-sm rounded-lg border bg-white px-3 text-sm"/><select className="h-11 rounded-lg border bg-white px-3 text-sm"><option>All types</option><option>Deposit</option><option>Withdrawal</option></select></div><Panel><div className="overflow-x-auto"><table className="w-full min-w-175 text-sm"><thead><tr className="text-left text-xs text-[#929b96]"><th className="pb-3">Transaction</th><th>Description</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody>{transactions.map((row)=><tr key={row.id} className="border-t"><td className="py-3.5 font-semibold">{row.id}</td><td>{row.name}</td><td className="font-semibold">${Math.abs(row.amount).toLocaleString()}</td><td><span className="rounded-full bg-[#edf7f3] px-2 py-1 text-xs text-[#277d62]">{row.status}</span></td><td>{row.date}</td><td>{role==="staff" && <button onClick={()=>setNotice("Transaction flagged for admin review.")} className="text-xs font-semibold text-[#b06e30]">Flag</button>}</td></tr>)}</tbody></table></div></Panel></div>;
   }
 
   if (section === "loan-review" || section === "loan-management") return (
-    <div><Panel title="Loan applications"><div className="overflow-x-auto"><table className="w-full min-w-190 text-sm"><thead><tr className="text-left text-xs text-[#929b96]"><th className="pb-3">Application</th><th>Customer</th><th>Type</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>{loanRows.map((row)=><tr key={row.id} className="border-t"><td className="py-3.5 font-semibold">{row.id}</td><td>{row.customer}</td><td>{row.type}</td><td className="font-semibold">{row.amount}</td><td><span className="rounded-full bg-[#fff4df] px-2 py-1 text-xs text-[#a77728]">{row.status}</span></td><td>{role==="admin" ? <div className="flex gap-2"><button onClick={()=>updateLoan(row.id,"Approved")} className="rounded-lg bg-[#176b50] px-3 py-1.5 text-xs text-white">Approve</button><button onClick={()=>updateLoan(row.id,"Rejected")} className="rounded-lg border px-3 py-1.5 text-xs">Reject</button></div> : <button onClick={()=>updateLoan(row.id,"Under Review" as "Approved")} className="rounded-lg border px-3 py-1.5 text-xs font-semibold">Add note / Forward</button>}</td></tr>)}</tbody></table></div></Panel></div>
+    <div><Panel title="Loan applications"><div className="overflow-x-auto"><table className="w-full min-w-190 text-sm"><thead><tr className="text-left text-xs text-[#929b96]"><th className="pb-3">Application</th><th>Customer</th><th>Type</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>{loanRows.map((row)=><tr key={row.id} className="border-t"><td className="py-3.5 font-semibold">{row.id}</td><td>{row.customer}</td><td>{row.type}</td><td className="font-semibold">{row.amount}</td><td><span className="rounded-full bg-[#fff4df] px-2 py-1 text-xs text-[#a77728]">{row.status}</span></td><td>{role==="admin" ? <div className="flex gap-2"><button onClick={()=>updateLoan(row.id,"Approved")} className="rounded-lg bg-[#176b50] px-3 py-1.5 text-xs text-white">Approve</button><button onClick={()=>updateLoan(row.id,"Rejected")} className="rounded-lg border px-3 py-1.5 text-xs">Reject</button></div> : <button onClick={()=>updateLoan(row.id,"Under Review")} className="rounded-lg border px-3 py-1.5 text-xs font-semibold">Add note / Forward</button>}</td></tr>)}</tbody></table></div></Panel></div>
   );
 
   if (section === "settings") return (
