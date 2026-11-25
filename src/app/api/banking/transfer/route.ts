@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     const amount = new Prisma.Decimal(String(body.amount));
     const recipientNumber = String(body.recipient || "").replace(/\D/g, "");
     const pin = String(body.pin || "");
+    const senderAccountId = String(body.senderAccountId || "");
     if (!amount.isFinite() || amount.lte(0)) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     if (!/^\d{4}$/.test(pin)) return NextResponse.json({ error: "Valid 4-digit PIN required" }, { status: 400 });
     if (!recipientNumber) return NextResponse.json({ error: "Recipient account required" }, { status: 400 });
@@ -28,17 +29,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid transaction PIN" }, { status: 401 });
     }
 
-    const sender = await prisma.account.findFirst({
-      where: { customerId: user.id, status: "active" },
-      orderBy: { createdAt: "asc" },
-    });
+    const sender = senderAccountId
+      ? await prisma.account.findFirst({ where: { id: senderAccountId, customerId: user.id, status: "active" } })
+      : await prisma.account.findFirst({ where: { customerId: user.id, status: "active" }, orderBy: { createdAt: "asc" } });
     if (!sender) return NextResponse.json({ error: "No active account found" }, { status: 422 });
 
     const recipient = await prisma.account.findUnique({ where: { accountNumber: recipientNumber } });
     if (!recipient) return NextResponse.json({ error: "Recipient account not found" }, { status: 404 });
     if (recipient.status !== "active") return NextResponse.json({ error: "Recipient account is unavailable" }, { status: 422 });
-    if (recipient.id === sender.id) return NextResponse.json({ error: "Use account switching for an own-account transfer" }, { status: 400 });
-
     const result = await prisma.$transaction(async (tx) => {
       const senderLocked = await tx.account.findUnique({ where: { id: sender.id } });
       if (!senderLocked || senderLocked.status !== "active") throw new Error("SENDER_UNAVAILABLE");

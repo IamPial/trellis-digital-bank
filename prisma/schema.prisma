@@ -49,6 +49,17 @@ enum LoanStatus {
   completed
 }
 
+enum MoneyRequestType {
+  deposit
+  withdrawal
+}
+
+enum MoneyRequestStatus {
+  pending
+  approved
+  rejected
+}
+
 model User {
   id           String    @id @default(uuid())
   email        String    @unique
@@ -60,6 +71,7 @@ model User {
   accounts     Account[]
   loans        Loan[]
   notifications Notification[]
+  moneyRequests MoneyRequest[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -75,6 +87,7 @@ model Account {
   status        AccountStatus @default(active)
   sentTransactions     Transaction[] @relation("SenderAccount")
   receivedTransactions Transaction[] @relation("ReceiverAccount")
+  moneyRequests MoneyRequest[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -120,4 +133,20 @@ model Notification {
   message   String
   readAt    DateTime?
   createdAt DateTime  @default(now())
+}
+
+model MoneyRequest {
+  id           String            @id @default(uuid())
+  customerId   String
+  customer     User              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  accountId    String
+  type         MoneyRequestType
+  amount       Decimal           @db.Decimal(14, 2)
+  description  String?
+  status       MoneyRequestStatus @default(pending)
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  account      Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }

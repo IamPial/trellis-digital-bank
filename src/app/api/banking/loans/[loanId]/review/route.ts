@@ -32,14 +32,58 @@ export async function PATCH(
     return NextResponse.json({ error: "This application has already been finalized" }, { status: 409 });
   }
 
-  const updatedLoan = await prisma.loan.update({
-    where: { id: loanId },
-    data: {
-      status: status as LoanStatus,
-      ...(body.internalNotes ? { internalNotes: String(body.internalNotes) } : {}),
-      ...(status === "approved" ? { approvedAmount: loan.requestedAmount, remainingBalance: loan.requestedAmount } : {}),
-    },
+  const updatedLoan = await prisma.$transaction(async (tx) => {
+    let account = null;
+    if (status === "approved") {
+      account = await tx.account.findFirst({
+        where: { customerId: loan.customerId, status: "active" },
+        orderBy: { createdAt: "asc" },
+      });
+      if (!account) throw new Error("NO_ACTIVE_ACCOUNT");
+    }
+
+    if (status === "approved" && account) {
+      await tx.account.update({
+        where: { id: account.id },
+        data: { balance: { increment: loan.requestedAmount } },
+      });
+      await tx.transaction.create({
+        data: {
+          transactionId: `TXN-${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`,
+          receiverAccountId: account.id,
+          transactionType: "loan_disbursement",
+          amount: loan.requestedAmount,
+          status: "completed",
+          description: `Loan disbursement for ${loan.loanType}`,
+        },
+      });
+      await tx.notification.create({
+        data: {
+          userId: loan.customerId,
+          title: "Loan approved",
+          message: `Your ${loan.loanType} for ${loan.requestedAmount.toFixed(2)} was approved and disbursed.`,
+        },
+      });
+    }
+
+    return tx.loan.update({
+      where: { id: loanId },
+      data: {
+        status: status === "approved" ? ("active" as LoanStatus) : (status as LoanStatus),
+        ...(body.internalNotes ? { internalNotes: String(body.internalNotes) } : {}),
+        ...(status === "approved" ? { approvedAmount: loan.requestedAmount, remainingBalance: loan.requestedAmount } : {}),
+      },
+    });
+  }).catch((error) => {
+    if (error instanceof Error && error.message === "NO_ACTIVE_ACCOUNT") {
+      return null;
+    }
+    throw error;
   });
+
+  if (!updatedLoan) {
+    return NextResponse.json({ error: "Customer has no active account for loan disbursement" }, { status: 422 });
+  }
 
   return NextResponse.json({ loan: updatedLoan });
 }

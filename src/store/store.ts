@@ -1,6 +1,6 @@
 "use client";
 
-import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { configureStore, createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export type Role = "admin" | "staff" | "customer";
 
@@ -35,14 +35,30 @@ const transactionSlice = createSlice({
   reducers: {
     addTransaction: (state, action: PayloadAction<Transaction>) => { state.items.unshift(action.payload); },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTransactions.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchTransactions.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchTransactions.rejected, (state, action) => { state.loading = false; state.error = action.error.message || "Unable to load transactions"; });
+  },
 });
 
-interface AccountState { selected: "checking" | "savings" | "business"; loading: boolean; }
+interface AccountState { selected: "checking" | "savings" | "business"; loading: boolean; error: string | null; }
 const accountSlice = createSlice({
   name: "accounts",
-  initialState: { selected: "checking", loading: false } as AccountState,
+  initialState: { selected: "checking", loading: false, error: null } as AccountState,
   reducers: {
     selectAccount: (state, action: PayloadAction<AccountState["selected"]>) => { state.selected = action.payload; },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAccounts.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchAccounts.fulfilled, (state) => { state.loading = false; state.error = null; })
+      .addCase(fetchAccounts.rejected, (state, action) => { state.loading = false; state.error = action.error.message || "Unable to load accounts"; });
   },
 });
 
@@ -53,6 +69,40 @@ const loanSlice = createSlice({
   reducers: {
     setLoanStatus: (state, action: PayloadAction<LoanState["status"]>) => { state.status = action.payload; },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchLoans.pending, (state) => { state.status = "loading"; })
+      .addCase(fetchLoans.fulfilled, (state, action) => { state.status = "success"; state.applications = action.payload.length; })
+      .addCase(fetchLoans.rejected, (state) => { state.status = "idle"; });
+  },
+});
+
+export const fetchTransactions = createAsyncThunk("transactions/fetch", async () => {
+  const response = await fetch("/api/banking/transactions");
+  if (!response.ok) throw new Error("Unable to load transactions");
+  const data = await response.json();
+  return data.transactions.map((transaction: any): Transaction => ({
+    id: transaction.transactionId,
+    name: transaction.description || transaction.transactionType.replaceAll("_", " "),
+    detail: transaction.transactionType.replaceAll("_", " "),
+    amount: Number(transaction.amount) * (transaction.receiverAccountId ? 1 : -1),
+    type: transaction.receiverAccountId ? "credit" : "debit",
+    status: transaction.status === "completed" ? "Completed" : transaction.status === "pending" ? "Pending" : "Failed",
+    date: new Date(transaction.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+  }));
+});
+
+export const fetchAccounts = createAsyncThunk("accounts/fetch", async () => {
+  const response = await fetch("/api/banking/accounts");
+  if (!response.ok) throw new Error("Unable to load accounts");
+  return response.json();
+});
+
+export const fetchLoans = createAsyncThunk("loans/fetch", async () => {
+  const response = await fetch("/api/banking/loans");
+  if (!response.ok) throw new Error("Unable to load loans");
+  const data = await response.json();
+  return data.loans as any[];
 });
 
 export const { setAuth, clearAuth } = authSlice.actions;

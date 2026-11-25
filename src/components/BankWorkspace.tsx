@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { addTransaction, clearAuth, selectAccount, setAuth } from "@/store/store";
+import { addTransaction, clearAuth, fetchAccounts, fetchLoans, fetchTransactions, selectAccount, setAuth } from "@/store/store";
 import { toast } from "sonner";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -126,17 +126,21 @@ function CustomerContent({ section, dispatch, setNotice }: { section: string; di
   const [loanStatus, setLoanStatus] = useState("Pending");
 
   const [accounts, setAccounts] = useState([
-    { key: "checking", label: "Checking", last: "4821", balance: 24680.45, type: "Savings Account", status: "Active", limit: "$10,000/day" },
-    { key: "savings", label: "Savings", last: "1098", balance: 18240.2, type: "Savings Account", status: "Active", limit: "$5,000/day" },
-    { key: "business", label: "Business", last: "7734", balance: 5420.1, type: "Business Account", status: "Active", limit: "$25,000/day" },
+    { id: "", key: "checking", label: "Checking", last: "4821", balance: 24680.45, type: "Savings Account", status: "Active", limit: "$10,000/day" },
+    { id: "", key: "savings", label: "Savings", last: "1098", balance: 18240.2, type: "Savings Account", status: "Active", limit: "$5,000/day" },
+    { id: "", key: "business", label: "Business", last: "7734", balance: 5420.1, type: "Business Account", status: "Active", limit: "$25,000/day" },
   ]);
 
   useEffect(() => {
+    dispatch(fetchAccounts());
+    dispatch(fetchTransactions());
+    dispatch(fetchLoans());
     fetch("/api/banking/accounts")
       .then((response) => response.ok ? response.json() : null)
       .then((data) => {
         if (!data?.accounts) return;
         setAccounts(data.accounts.map((account: any, index: number) => ({
+          id: account.id,
           key: index === 0 ? "checking" : index === 1 ? "savings" : "business",
           label: account.accountType.charAt(0).toUpperCase() + account.accountType.slice(1),
           last: account.accountNumber.slice(-4),
@@ -155,11 +159,14 @@ function CustomerContent({ section, dispatch, setNotice }: { section: string; di
     const recipient = String(form.get("recipient"));
     const amount = Number(form.get("amount"));
     const pin = String(form.get("pin"));
+    const description = String(form.get("description") || "");
+    const selectedAccount = accounts.find((account) => account.key === selected);
+    const senderAccountId = (selectedAccount as typeof selectedAccount & { id?: string })?.id;
     if (!recipient || !Number.isFinite(amount) || amount <= 0 || !/^\d{4}$/.test(pin)) {
       setNotice("Enter a valid recipient, amount, and 4-digit PIN.", "error");
       return;
     }
-    const response = await fetch("/api/banking/transfer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipient, amount, pin }) });
+    const response = await fetch("/api/banking/transfer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipient, amount, pin, description, senderAccountId }) });
     const result = await response.json();
     if (!response.ok) { setNotice(result.error || "Transfer failed.", "error"); return; }
     dispatch(addTransaction({ id: result.transactionId, name: `Transfer to ${recipient}`, detail: "Fund transfer", amount: -amount, type: "debit", status: "Completed", date: "Nov 24, 2026" }));
@@ -169,8 +176,21 @@ function CustomerContent({ section, dispatch, setNotice }: { section: string; di
 
   const submitRequest = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setRequestOpen(false);
-    setNotice("Request submitted and is awaiting approval.");
+    const form = new FormData(event.currentTarget);
+    const accountId = String(form.get("accountId"));
+    const type = String(form.get("type"));
+    const amount = Number(form.get("amount"));
+    const description = String(form.get("description") || "");
+    fetch("/api/banking/requests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accountId, type, amount, description }),
+    }).then(async (response) => {
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to submit request");
+      setRequestOpen(false);
+      setNotice("Request submitted and is awaiting approval.");
+    }).catch((error: Error) => setNotice(error.message, "error"));
   };
 
   const submitLoan = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -208,9 +228,9 @@ function CustomerContent({ section, dispatch, setNotice }: { section: string; di
     <div>
       <div className="mb-5 flex justify-end"><button onClick={() => setTransferOpen(true)} className="flex h-11 items-center gap-2 rounded-lg bg-[#176b50] px-4 text-sm font-semibold text-white"><Send size={16}/>Transfer money</button></div>
       <section className="grid gap-4 md:grid-cols-3">
-        <Card title="Total balance" value="$24,680.45" change="+8.4% this month" icon={CircleDollarSign}/>
-        <Card title="Monthly deposits" value="$8,420.00" change="+12.5% this month" icon={ArrowDownLeft}/>
-        <Card title="Monthly spending" value="$4,231.18" change="-3.2% this month" icon={ArrowUpRight}/>
+        <Card title="Total balance" value={`$${accounts.reduce((sum, account) => sum + account.balance, 0).toLocaleString(undefined,{minimumFractionDigits:2})}`} change={`${accounts.length} active accounts`} icon={CircleDollarSign}/>
+        <Card title="Monthly deposits" value={`$${transactions.filter((tx) => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0).toLocaleString(undefined,{minimumFractionDigits:2})}`} change="Database transaction history" icon={ArrowDownLeft}/>
+        <Card title="Monthly spending" value={`$${transactions.filter((tx) => tx.amount < 0).reduce((sum, tx) => sum + Math.abs(tx.amount), 0).toLocaleString(undefined,{minimumFractionDigits:2})}`} change="Database transaction history" icon={ArrowUpRight}/>
       </section>
       <section className="mt-5 grid gap-5 xl:grid-cols-[1.55fr_.75fr]">
         <Panel title="Cash flow" subtitle="Income and spending overview">
@@ -227,7 +247,7 @@ function CustomerContent({ section, dispatch, setNotice }: { section: string; di
     <div>
       <div className="mb-5 flex gap-3"><input value={accountQuery} onChange={(event) => setAccountQuery(event.target.value)} placeholder="Search accounts" className="h-11 w-full max-w-sm rounded-lg border border-[#dde4df] bg-white px-3 text-sm outline-none"/><button onClick={() => setRequestOpen(true)} className="h-11 rounded-lg border border-[#dde4df] bg-white px-4 text-sm font-semibold">Request account</button></div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{accounts.filter((account) => account.label.toLowerCase().includes(accountQuery.toLowerCase())).map((account) => <div key={account.key} className="rounded-2xl border border-[#edf0ee] bg-white p-5"><div className="flex items-center justify-between"><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#edf5f1] text-[#277d62]"><CreditCard size={20}/></div><span className="rounded-full bg-[#edf7f3] px-2 py-1 text-xs text-[#277d62]">{account.status}</span></div><h3 className="mt-5 font-semibold">{account.label} Account</h3><p className="mt-1 text-xs text-[#929b96]">{account.type} •••• {account.last}</p><p className="mt-5 text-2xl font-semibold">${account.balance.toLocaleString(undefined,{minimumFractionDigits:2})}</p><div className="mt-4 flex justify-between border-t border-[#edf0ee] pt-4 text-xs text-[#7d8882]"><span>Available</span><span>{account.limit}</span></div></div>)}</div>
-      {requestOpen && <SimpleModal title="Request new account" onClose={() => setRequestOpen(false)}><form onSubmit={submitRequest} className="mt-5 space-y-4"><select className="h-12 w-full rounded-lg border px-3"><option>Savings Account</option><option>Current Account</option><option>Business Account</option></select><textarea required placeholder="Purpose of the account" className="h-24 w-full rounded-lg border px-3 py-3"/><button className="h-12 w-full rounded-lg bg-[#176b50] text-sm font-semibold text-white">Submit request</button></form></SimpleModal>}
+      {requestOpen && <SimpleModal title="Deposit or withdrawal request" onClose={() => setRequestOpen(false)}><form onSubmit={submitRequest} className="mt-5 space-y-4"><select name="accountId" required className="h-12 w-full rounded-lg border px-3">{accounts.map((account)=><option key={account.id} value={account.id}>{account.label} •••• {account.last}</option>)}</select><select name="type" className="h-12 w-full rounded-lg border px-3"><option value="deposit">Deposit</option><option value="withdrawal">Withdrawal</option></select><input name="amount" required type="number" min="0.01" step="0.01" placeholder="Amount" className="h-12 w-full rounded-lg border px-3"/><textarea name="description" required placeholder="Request description" className="h-24 w-full rounded-lg border px-3 py-3"/><button className="h-12 w-full rounded-lg bg-[#176b50] text-sm font-semibold text-white">Submit request</button></form></SimpleModal>}
     </div>
   );
 
@@ -255,10 +275,34 @@ function OperationsContent({ role, section, dispatch, setNotice }: { role: "admi
   const [loanRows, setLoanRows] = useState<{id:string;customer:string;amount:string;type:string;status:string}[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [freeze, setFreeze] = useState<Record<string, boolean>>({});
+  const [requestRows, setRequestRows] = useState<any[]>([]);
 
   const filteredCustomers = customers.filter((customer) => `${customer.name} ${customer.email} ${customer.account}`.toLowerCase().includes(query.toLowerCase()));
 
   useEffect(() => {
+    fetch("/api/banking/customers")
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => {
+        if (!data?.customers) return;
+        setCustomers(data.customers.map((customer: any, index: number) => ({
+          id: customer.id,
+          name: customer.fullName,
+          email: customer.email,
+          account: customer.accounts[0]?.accountNumber.slice(-4) || String(index + 1000),
+          type: customer.accounts[0]?.accountType ? `${customer.accounts[0].accountType.charAt(0).toUpperCase()}${customer.accounts[0].accountType.slice(1)}` : "Savings",
+          status: customer.status === "active" ? "Active" : "Review",
+          balance: Number(customer.accounts[0]?.balance || 0),
+        })));
+      })
+      .catch(() => undefined);
+
+    if (section === "pending-requests") {
+      fetch("/api/banking/requests")
+        .then((response) => response.ok ? response.json() : null)
+        .then((data) => setRequestRows(data?.requests || []))
+        .catch(() => setNotice("Unable to load money requests.", "error"));
+    }
+
     if (section !== "loan-review" && section !== "loan-management") return;
     fetch("/api/banking/loans")
       .then(async (response) => {
