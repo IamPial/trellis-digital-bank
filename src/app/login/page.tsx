@@ -58,11 +58,10 @@ export default function LoginPage() {
           <span className="text-xl font-semibold tracking-tight">Trellis Bank</span>
         </div>
         <div className="relative z-10 max-w-xl pb-12">
-          <div className="mb-6 h-12 w-12 rounded-full border border-white/20 grid place-items-center"><ShieldCheck size={24} /></div>
-          <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em]">Banking that moves at the speed of you.</h1>
-          <p className="mt-6 max-w-md text-lg leading-8 text-blue-100/75">Manage accounts, move money, and build your future with one secure financial workspace.</p>
+          <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em]">Trust with Trellis Platform</h1>
+          <p className="mt-6 max-w-md text-lg leading-8 text-blue-100/75">Move money and build your future with one secure financial account.</p>
         </div>
-        <p className="relative z-10 text-xs text-blue-100/60">© {year ?? 2026} Trellis Digital Bank · FDIC Insured</p>
+        <p className="relative z-10 text-xs text-blue-100/60">© {year ?? 2026} Trellis Digital Bank</p>
       </section>
 
       <section className="flex-1 flex items-center justify-center px-6 py-10">
