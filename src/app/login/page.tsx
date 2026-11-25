@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Building2, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
@@ -9,10 +9,17 @@ import { toast } from "sonner";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function LoginPage() {
+  const [year, setYear] = useState<number | null>  (null)
   const [role, setRole] = useState<Role>("customer");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
+
+
+  //for new date
+  useEffect(()=>{
+    setYear(new Date().getFullYear())
+  },[])
 
   const login = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -55,7 +62,7 @@ export default function LoginPage() {
           <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em]">Banking that moves at the speed of you.</h1>
           <p className="mt-6 max-w-md text-lg leading-8 text-blue-100/75">Manage accounts, move money, and build your future with one secure financial workspace.</p>
         </div>
-        <p className="relative z-10 text-xs text-blue-100/60">© 2026 Trellis Digital Bank · FDIC Insured</p>
+        <p className="relative z-10 text-xs text-blue-100/60">© {year ?? 2026} Trellis Digital Bank · FDIC Insured</p>
       </section>
 
       <section className="flex-1 flex items-center justify-center px-6 py-10">
