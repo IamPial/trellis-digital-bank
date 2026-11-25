@@ -59,14 +59,13 @@ export default function LoginPage() {
       </section>
 
       <section className="flex-1 flex items-center justify-center px-6 py-10">
-        <div data-login-panel className="w-full max-w-[420px] rounded-2xl border border-[#e1e7f0] bg-white p-7 shadow-[0_20px_60px_rgba(27,39,58,.08)] md:p-9">
+        <div data-login-panel className="w-full max-w-105 rounded-2xl border border-[#e1e7f0] bg-white p-7 shadow-[0_20px_60px_rgba(27,39,58,.08)] md:p-9">
           <div className="lg:hidden mb-10 flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-[#153f33] text-white grid place-items-center"><Building2 size={21} /></div>
             <span className="text-xl font-semibold">Trellis Bank</span>
           </div>
-          <p className="text-sm font-semibold text-[#1d6b52] mb-2">Secure portal</p>
           <h2 className="text-3xl font-semibold tracking-tight text-[#17211d]">Welcome back</h2>
-          <p className="mt-2 text-sm text-[#778078]">Sign in to your banking workspace.</p>
+          <p className="mt-2 text-sm text-[#778078]">Sign in to your trellis account.</p>
 
           <form onSubmit={login} className="mt-8 space-y-5">
             <label className="block">
@@ -92,7 +91,6 @@ export default function LoginPage() {
               {loading ? "Signing in..." : "Sign in"} <ArrowRight size={18} />
             </button>
           </form>
-          <p className="mt-6 text-center text-xs text-[#929a95]">Protected by 256-bit encryption</p>
         </div>
       </section>
     </main>
