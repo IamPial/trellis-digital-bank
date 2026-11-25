@@ -1,12 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
 type Theme = "light" | "dark";
 
+const subscribeToTheme = (callback: () => void) => {
+  window.addEventListener("trellis-theme-change", callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener("trellis-theme-change", callback);
+    window.removeEventListener("storage", callback);
+  };
+};
+
+const getThemeSnapshot = (): Theme =>
+  document.documentElement.classList.contains("dark") ? "dark" : "light";
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const theme = useSyncExternalStore(subscribeToTheme, getThemeSnapshot, () => "light");
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem("trellis-theme");
@@ -16,15 +28,15 @@ export default function ThemeToggle() {
         : window.matchMedia("(prefers-color-scheme: dark)").matches
           ? "dark"
           : "light";
-    setTheme(initialTheme);
     document.documentElement.classList.toggle("dark", initialTheme === "dark");
+    window.dispatchEvent(new CustomEvent("trellis-theme-change", { detail: initialTheme }));
   }, []);
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
     document.documentElement.classList.toggle("dark", nextTheme === "dark");
     window.localStorage.setItem("trellis-theme", nextTheme);
+    window.dispatchEvent(new CustomEvent("trellis-theme-change", { detail: nextTheme }));
   };
 
   return (

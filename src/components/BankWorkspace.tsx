@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowDownLeft, ArrowUpRight, Bell, Building2, ChevronDown,
+  ArrowDownLeft, ArrowUpRight, Bell, ChevronDown,
   CircleDollarSign, CreditCard, Download, Landmark, LayoutDashboard,
   LifeBuoy, Menu, ReceiptText, Search, Send, Settings,
   SlidersHorizontal, UserRoundPlus, Users, WalletCards, X, Clock3
@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addTransaction, clearAuth, fetchAccounts, fetchLoans, fetchTransactions, selectAccount, setAuth } from "@/store/store";
 import { toast } from "sonner";
 import ThemeToggle from "@/components/ThemeToggle";
+import TrellisLogo from "@/components/TrellisLogo";
 
 const activity = [
   { name: "Jun", income: 5200, spending: 3100 },
@@ -74,8 +75,7 @@ export default function BankWorkspace({ section = "overview" }: Props) {
       {mobileNav && <button aria-label="Close navigation" onClick={() => setMobileNav(false)} className="fixed inset-0 z-40 bg-black/30 lg:hidden" />}
       <aside className={`fixed left-0 top-0 z-50 h-screen w-[236px] border-r border-[#e7ebe8] bg-white px-4 py-5 transition-transform lg:translate-x-0 ${mobileNav ? "translate-x-0" : "-translate-x-full"}`}>
         <button onClick={() => router.push("/dashboard")} className="flex h-10 items-center gap-3 px-2">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#176b50] text-white"><Building2 size={19}/></span>
-          <span className="text-[17px] font-semibold">Trellis <span className="text-[#7c8680]">Bank</span></span>
+          <TrellisLogo priority className="h-auto w-[180px]" />
         </button>
         <nav className="mt-8 space-y-1">
           {nav.map(([label,key,Icon]) => (

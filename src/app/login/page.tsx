@@ -8,7 +8,8 @@ import { setAuth, Role } from "@/store/store";
 import { toast } from "sonner";
 import ThemeToggle from "@/components/ThemeToggle";
 import Image from "next/image";
-import logo from "@/assets/trellis.png";
+import TrellisLogo from "@/components/TrellisLogo";
+import desktopLogo from "@/assets/trellis-dark.png";
 
 export default function LoginPage() {
   const [role, setRole] = useState<Role>("customer");
@@ -50,10 +51,10 @@ export default function LoginPage() {
         <div className="login-art absolute inset-0 opacity-25" />
         <div className="relative z-10 flex items-center gap-3">
           <Image
-            src={logo}
+            src={desktopLogo}
             alt="Trellis Bank Digital Banking"
             priority
-            className="h-auto w-[260px] max-w-[70%]"
+            className="h-auto w-65 max-w-[70%]"
           />
         </div>
         <div className="relative z-10 max-w-xl pb-12">
@@ -66,9 +67,7 @@ export default function LoginPage() {
       <section className="flex-1 flex items-center justify-center px-6 py-10">
         <div data-login-panel className="w-full max-w-105 rounded-2xl border border-[#e1e7f0] bg-white p-7 shadow-[0_20px_60px_rgba(27,39,58,.08)] md:p-9">
           <div className="lg:hidden mb-10 flex items-center gap-3">
-            <Image
-              src={logo}
-              alt="Trellis Bank Digital Banking"
+            <TrellisLogo
               priority
               className="h-auto w-55"
             />
