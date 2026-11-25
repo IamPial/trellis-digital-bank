@@ -1,25 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Building2, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowRight, LockKeyhole } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { setAuth, Role } from "@/store/store";
 import { toast } from "sonner";
 import ThemeToggle from "@/components/ThemeToggle";
+import Image from "next/image";
+import logo from "@/assets/trellis.png";
 
 export default function LoginPage() {
-  const [year, setYear] = useState<number | null>  (null)
   const [role, setRole] = useState<Role>("customer");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
-
-
-  //for new date
-  useEffect(()=>{
-    setYear(new Date().getFullYear())
-  },[])
 
   const login = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -54,21 +49,29 @@ export default function LoginPage() {
       <section className="hidden lg:flex w-[58%] bg-[#102d25] relative overflow-hidden flex-col justify-between p-14 text-white">
         <div className="login-art absolute inset-0 opacity-25" />
         <div className="relative z-10 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-[#65d5a4] text-[#102d25] grid place-items-center"><Building2 size={22} /></div>
-          <span className="text-xl font-semibold tracking-tight">Trellis Bank</span>
+          <Image
+            src={logo}
+            alt="Trellis Bank Digital Banking"
+            priority
+            className="h-auto w-[260px] max-w-[70%]"
+          />
         </div>
         <div className="relative z-10 max-w-xl pb-12">
           <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em]">Trust with Trellis Platform</h1>
           <p className="mt-6 max-w-md text-lg leading-8 text-blue-100/75">Move money and build your future with one secure financial account.</p>
         </div>
-        <p className="relative z-10 text-xs text-blue-100/60">© {year ?? 2026} Trellis Digital Bank</p>
+        <p className="relative z-10 text-xs text-blue-100/60">© 2026 Trellis Digital Bank</p>
       </section>
 
       <section className="flex-1 flex items-center justify-center px-6 py-10">
         <div data-login-panel className="w-full max-w-105 rounded-2xl border border-[#e1e7f0] bg-white p-7 shadow-[0_20px_60px_rgba(27,39,58,.08)] md:p-9">
           <div className="lg:hidden mb-10 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-[#153f33] text-white grid place-items-center"><Building2 size={21} /></div>
-            <span className="text-xl font-semibold">Trellis Bank</span>
+            <Image
+              src={logo}
+              alt="Trellis Bank Digital Banking"
+              priority
+              className="h-auto w-55"
+            />
           </div>
           <h2 className="text-3xl font-semibold tracking-tight text-[#17211d]">Welcome back</h2>
           <p className="mt-2 text-sm text-[#778078]">Sign in to your trellis account.</p>
@@ -86,7 +89,7 @@ export default function LoginPage() {
               </div>
             </label>
             <div>
-              <span className="text-sm font-medium text-[#33413b]">Demo role</span>
+              <span className="text-sm font-medium text-[#33413b]">Join as</span>
               <div className="mt-2 grid grid-cols-3 gap-2">
                 {(["customer","staff","admin"] as Role[]).map((item) => (
                   <button type="button" key={item} onClick={() => setRole(item)} className={`h-10 rounded-lg border text-sm capitalize transition ${role === item ? "border-[#277d62] bg-[#edf7f3] text-[#1d6751]" : "border-[#e0e5e2] bg-white text-[#737c77]"}`}>{item}</button>
