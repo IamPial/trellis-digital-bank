@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
   Bell,
   ChevronDown,
@@ -98,6 +99,7 @@ export default function BankWorkspace({ section = "overview" }: Props) {
   const name = auth.name || roleNames[role];
   const nav = navigation[role];
   const normalizedSection = section.toLowerCase().replaceAll("-", " ");
+  const today = format(new Date(), "EEEE, MMMM d");
 
   const logout = () => {
     document.cookie = "trellis_role=; path=/; max-age=0";
@@ -115,9 +117,9 @@ export default function BankWorkspace({ section = "overview" }: Props) {
           className="fixed inset-0 z-40 bg-black/30 lg:hidden"
         />
       )}
-      <aside className={`fixed left-0 top-0 z-50 h-screen w-[236px] border-r border-[#e7ebe8] bg-white px-4 py-5 transition-transform lg:translate-x-0 ${mobileNav ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed left-0 top-0 z-50 h-screen w-59 border-r border-[#e7ebe8] bg-white px-4 py-5 transition-transform lg:translate-x-0 ${mobileNav ? "translate-x-0" : "-translate-x-full"}`}>
         <button onClick={() => router.push("/dashboard")} className="flex h-10 items-center gap-3 px-2">
-          <TrellisLogo priority className="h-auto w-[180px]" />
+          <TrellisLogo priority className="h-auto w-45" />
         </button>
         <nav className="mt-8 space-y-1">
           {nav.map(([label, key, Icon]) => (
@@ -143,13 +145,13 @@ export default function BankWorkspace({ section = "overview" }: Props) {
         </div>
       </aside>
 
-      <main className="lg:ml-[236px]">
-        <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-[#edf0ee] bg-white/95 px-5 backdrop-blur md:px-8">
+      <main className="lg:ml-59">
+        <header className="sticky top-0 z-30 flex h-18 items-center justify-between border-b border-[#edf0ee] bg-white/95 px-5 backdrop-blur md:px-8">
           <div className="flex items-center gap-3">
             <button onClick={() => setMobileNav(true)} className="grid h-10 w-10 place-items-center rounded-lg border lg:hidden">
               <Menu size={20} />
             </button>
-            <div className="hidden h-10 w-[260px] items-center gap-2 rounded-lg bg-[#f4f6f5] px-3 text-[#96a099] md:flex">
+            <div className="hidden h-10 w-65 items-center gap-2 rounded-lg bg-[#f4f6f5] px-3 text-[#96a099] md:flex">
               <Search size={17} />
               <input aria-label="Search" placeholder="Search customers or transactions" className="w-full bg-transparent text-sm outline-none" />
             </div>
@@ -173,9 +175,9 @@ export default function BankWorkspace({ section = "overview" }: Props) {
           </div>
         </header>
 
-        <div className="mx-auto max-w-[1280px] px-5 py-7 md:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-7 md:px-8">
           <div className="mb-7">
-            <p className="text-sm text-[#8b9690]">Monday, November 24</p>
+            <p className="text-sm text-[#8b9690]">{today}</p>
             <h1 className="mt-1 text-2xl font-semibold capitalize tracking-tight md:text-[28px]">
               {nav.find(([, key]) => key === section)?.[0] || normalizedSection}
             </h1>
