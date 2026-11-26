@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LockKeyhole } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
-import { setAuth, Role } from "@/store/store";
+import { setAuth } from "@/store/store";
 import { toast } from "sonner";
 import ThemeToggle from "@/components/ThemeToggle";
 import Image from "next/image";
@@ -12,7 +12,6 @@ import TrellisLogo from "@/components/TrellisLogo";
 import desktopLogo from "@/assets/trellis-dark.png";
 
 export default function LoginPage() {
-  const [role, setRole] = useState<Role>("customer");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -22,7 +21,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const form = new FormData(event.currentTarget as HTMLFormElement);
-      const email = role === "admin" ? "admin@trellis.bank" : role === "staff" ? "staff@trellis.bank" : "jamie@trellis.bank";
+      const email = String(form.get("email") || "").trim();
       const password = String(form.get("password") || "trellisdemo");
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -61,7 +60,7 @@ export default function LoginPage() {
           <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em]">Trust with Trellis Platform</h1>
           <p className="mt-6 max-w-md text-lg leading-8 text-blue-100/75">Move money and build your future with one secure financial account.</p>
         </div>
-        <p className="relative z-10 text-xs text-blue-100/60">© 2026 Trellis Digital Bank</p>
+        <p className="relative z-10 text-xs text-blue-100/60">© {new Date().getFullYear()} Trellis Digital Bank</p>
       </section>
 
       <section className="flex-1 flex items-center justify-center px-6 py-10">
@@ -87,18 +86,14 @@ export default function LoginPage() {
                 <input name="password" type="password" defaultValue="trellisdemo" className="h-12 w-full rounded-xl border border-[#dde4df] bg-white pl-11 pr-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
               </div>
             </label>
-            <div>
-              <span className="text-sm font-medium text-[#33413b]">Join as</span>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {(["customer","staff","admin"] as Role[]).map((item) => (
-                  <button type="button" key={item} onClick={() => setRole(item)} className={`h-10 rounded-lg border text-sm capitalize transition ${role === item ? "border-[#277d62] bg-[#edf7f3] text-[#1d6751]" : "border-[#e0e5e2] bg-white text-[#737c77]"}`}>{item}</button>
-                ))}
-              </div>
-            </div>
             <button disabled={loading} className="h-12 w-full rounded-xl bg-[#176b50] text-white font-semibold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(23,107,80,.18)] hover:bg-[#125940] transition disabled:opacity-70">
               {loading ? "Signing in..." : "Sign in"} <ArrowRight size={18} />
             </button>
           </form>
+          <p className="mt-6 text-center text-sm text-[#778078]">
+            New to Trellis?{" "}
+            <a href="/register" className="font-semibold text-[#2864ea] hover:underline">Create an account</a>
+          </p>
         </div>
       </section>
     </main>
