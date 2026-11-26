@@ -60,7 +60,7 @@ export default function LoginPage() {
           <h1 className="text-5xl font-semibold leading-[1.08] tracking-[-0.04em]">Trust with Trellis Platform</h1>
           <p className="mt-6 max-w-md text-lg leading-8 text-blue-100/75">Move money and build your future with one secure financial account.</p>
         </div>
-        <p className="relative z-10 text-xs text-blue-100/60">© {new Date().getFullYear()} Trellis Digital Bank</p>
+        <p className="relative z-10 text-xs text-blue-100/60">© 2026 Trellis Digital Bank</p>
       </section>
 
       <section className="flex-1 flex items-center justify-center px-6 py-10">
@@ -77,13 +77,13 @@ export default function LoginPage() {
           <form onSubmit={login} className="mt-8 space-y-5">
             <label className="block">
               <span className="text-sm font-medium text-[#33413b]">Email address</span>
-              <input name="email" defaultValue="jamie@trellis.bank" className="mt-2 h-12 w-full rounded-xl border border-[#dde4df] bg-white px-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
+              <input name="email" type="email" required autoComplete="email" placeholder="you@example.com" className="mt-2 h-12 w-full rounded-xl border border-[#dde4df] bg-white px-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
             </label>
             <label className="block">
               <span className="text-sm font-medium text-[#33413b]">Password</span>
               <div className="relative mt-2">
                 <LockKeyhole className="absolute left-4 top-3.5 text-[#96a09a]" size={18} />
-                <input name="password" type="password" defaultValue="trellisdemo" className="h-12 w-full rounded-xl border border-[#dde4df] bg-white pl-11 pr-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
+                <input name="password" type="password" required autoComplete="current-password" className="h-12 w-full rounded-xl border border-[#dde4df] bg-white pl-11 pr-4 outline-none transition focus:border-[#278367] focus:ring-4 focus:ring-[#278367]/10" />
               </div>
             </label>
             <button disabled={loading} className="h-12 w-full rounded-xl bg-[#176b50] text-white font-semibold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(23,107,80,.18)] hover:bg-[#125940] transition disabled:opacity-70">
