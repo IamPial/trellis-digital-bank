@@ -72,7 +72,7 @@ export default function RegisterPage() {
         <p className="relative z-10 text-xs text-blue-100/60">© 2026 Trellis Digital Bank</p>
       </section>
 
-      <section className="flex-1 flex items-center justify-center px-6 py-10">
+      <section className="flex-1 flex items-start justify-center px-6 pt-24 pb-10 lg:items-center lg:py-10">
         <div data-login-panel className="w-full max-w-105 rounded-2xl border border-[#e1e7f0] bg-white p-7 shadow-[0_20px_60px_rgba(27,39,58,.08)] md:p-9">
           <div className="lg:hidden mb-8 flex items-center gap-3">
             <TrellisLogo priority className="h-auto w-55" />
