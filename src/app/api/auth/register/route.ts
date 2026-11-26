@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { SignJWT } from "jose";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -64,23 +63,13 @@ export async function POST(request: Request) {
       return { user, account };
     });
 
-    const secret = new TextEncoder().encode(process.env.AUTH_SECRET || "trellis-development-secret-change-me");
-    const token = await new SignJWT({ sub: result.user.id, role: result.user.role, email: result.user.email })
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime("8h")
-      .sign(secret);
-
-    const response = NextResponse.json({
+    return NextResponse.json({
       id: result.user.id,
       role: result.user.role,
       name: result.user.fullName,
       email: result.user.email,
       accountNumber: result.account?.accountNumber,
     }, { status: 201 });
-    response.cookies.set("trellis_session", token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 28800 });
-    response.cookies.set("trellis_role", result.user.role, { sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 28800 });
-    return response;
   } catch (error) {
     console.error("Registration failed", error);
     return NextResponse.json({ error: "Unable to create account" }, { status: 503 });
