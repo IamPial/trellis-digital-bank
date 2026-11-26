@@ -23,19 +23,13 @@ import CustomerTable from "@/components/shared/CustomerTable";
 import Panel from "@/components/shared/Panel";
 import SimpleModal from "@/components/shared/SimpleModal";
 import type { CustomerRow, Notice } from "@/components/shared/types";
+import StaffDashboardContent from "@/components/bank-workspace/StaffDashboardContent";
+import type { StaffLoanRow } from "@/components/bank-workspace/staff/types";
 
 type OperationsContentProps = {
   role: "admin" | "staff";
   section: string;
   setNotice: Notice;
-};
-
-type LoanRow = {
-  id: string;
-  customer: string;
-  amount: string;
-  type: string;
-  status: string;
 };
 
 type LoanResponse = {
@@ -73,7 +67,7 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
   const transactions = useAppSelector((state) => state.transactions.items);
   const [customers, setCustomers] = useState(customersSeed);
   const [query, setQuery] = useState("");
-  const [loanRows, setLoanRows] = useState<LoanRow[]>([]);
+  const [loanRows, setLoanRows] = useState<StaffLoanRow[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [freeze, setFreeze] = useState<Record<string, boolean>>({});
 
@@ -136,6 +130,21 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
     setNotice(role === "staff" ? "Application forwarded to the admin for approval." : `Loan application ${status.toLowerCase()}.`);
   };
 
+  if (role === "staff") {
+    return (
+      <StaffDashboardContent
+        section={section}
+        customers={customers}
+        freeze={freeze}
+        setFreeze={setFreeze}
+        loanRows={loanRows}
+        transactions={transactions}
+        setNotice={setNotice}
+        onForwardLoan={(id) => updateLoan(id, "Under Review")}
+      />
+    );
+  }
+
   if (section === "overview") {
     return (
       <div>
@@ -143,31 +152,29 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
           <Card title="Registered customers" value="2,842" change="+8.4% this month" icon={Users} />
           <Card title="Total bank accounts" value="4,617" change="+6.1% this month" icon={WalletCards} />
           <Card title="Total bank balance" value="$12.4M" change="+4.8% this month" icon={CircleDollarSign} />
-          <Card title={role === "admin" ? "Pending loans" : "Pending requests"} value={role === "admin" ? "18" : "12"} change="Review required" icon={Landmark} />
+          <Card title="Pending loans" value="18" change="Review required" icon={Landmark} />
         </section>
-        {role === "admin" && (
-          <Panel title="Monthly banking activity" className="mt-5">
-            <div className="h-[260px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={activity}>
-                  <defs>
-                    <linearGradient id="adminActivity" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#277d62" stopOpacity={0.22} />
-                      <stop offset="95%" stopColor="#277d62" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                  <YAxis axisLine={false} tickLine={false} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="income" stroke="#277d62" strokeWidth={2} fill="url(#adminActivity)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Panel>
-        )}
-        <Panel title={role === "staff" ? "Customer operations" : "Recent customers"} className="mt-5">
-          <CustomerTable customers={customers} freeze={freeze} setFreeze={setFreeze} staff={role === "staff"} />
+        <Panel title="Monthly banking activity" className="mt-5">
+          <div className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={activity}>
+                <defs>
+                  <linearGradient id="adminActivity" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#277d62" stopOpacity={0.22} />
+                    <stop offset="95%" stopColor="#277d62" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                <YAxis axisLine={false} tickLine={false} />
+                <Tooltip />
+                <Area type="monotone" dataKey="income" stroke="#277d62" strokeWidth={2} fill="url(#adminActivity)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Panel>
+        <Panel title="Recent customers" className="mt-5">
+          <CustomerTable customers={customers} freeze={freeze} setFreeze={setFreeze} staff={false} />
         </Panel>
       </div>
     );
@@ -178,34 +185,21 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
       <div>
         <div className="mb-5 flex flex-wrap gap-3">
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, email, or account" className="h-11 w-full max-w-sm rounded-lg border bg-white px-3 text-sm" />
-          {role === "staff" && (
-            <button onClick={() => setCreateOpen(true)} className="flex h-11 items-center gap-2 rounded-lg bg-[#176b50] px-4 text-sm font-semibold text-white">
-              <UserRoundPlus size={16} />Register customer
-            </button>
-          )}
-          {role === "admin" && (
-            <button onClick={() => setCreateOpen(true)} className="flex h-11 items-center gap-2 rounded-lg bg-[#176b50] px-4 text-sm font-semibold text-white">
-              <UserRoundPlus size={16} />Create account
-            </button>
-          )}
+          <button onClick={() => setCreateOpen(true)} className="flex h-11 items-center gap-2 rounded-lg bg-[#176b50] px-4 text-sm font-semibold text-white">
+            <UserRoundPlus size={16} />Create account
+          </button>
         </div>
-        <Panel><CustomerTable customers={filteredCustomers} freeze={freeze} setFreeze={setFreeze} staff={role === "staff"} /></Panel>
+        <Panel><CustomerTable customers={filteredCustomers} freeze={freeze} setFreeze={setFreeze} staff={false} /></Panel>
         {createOpen && (
-          <SimpleModal title={role === "staff" ? "Register customer" : "Create bank account"} onClose={() => setCreateOpen(false)}>
+          <SimpleModal title="Create bank account" onClose={() => setCreateOpen(false)}>
             <form
               onSubmit={(event) => {
                 event.preventDefault();
                 setCreateOpen(false);
-                setNotice(role === "staff" ? "Customer registered successfully." : "Bank account created successfully.");
+                setNotice("Bank account created successfully.");
               }}
               className="mt-5 space-y-4"
             >
-              {role === "staff" && (
-                <>
-                  <input required placeholder="Full name" className="h-12 w-full rounded-lg border px-3" />
-                  <input required type="email" placeholder="Email address" className="h-12 w-full rounded-lg border px-3" />
-                </>
-              )}
               <select className="h-12 w-full rounded-lg border px-3">
                 <option>Savings Account</option><option>Current Account</option><option>Business Account</option>
               </select>
@@ -256,7 +250,7 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
     );
   }
 
-  if (section === "transactions" || section === "pending-requests") {
+  if (section === "transactions") {
     return (
       <div>
         <div className="mb-4 flex gap-3">
@@ -266,7 +260,7 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
         <Panel>
           <div className="overflow-x-auto">
             <table className="w-full min-w-175 text-sm">
-              <thead><tr className="text-left text-xs text-[#929b96]"><th className="pb-3">Transaction</th><th>Description</th><th>Amount</th><th>Status</th><th>Date</th><th /></tr></thead>
+              <thead><tr className="text-left text-xs text-[#929b96]"><th className="pb-3">Transaction</th><th>Description</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
               <tbody>
                 {transactions.map((transaction) => (
                   <tr key={transaction.id} className="border-t">
@@ -274,7 +268,6 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
                     <td className="font-semibold">${Math.abs(transaction.amount).toLocaleString()}</td>
                     <td><span className="rounded-full bg-[#edf7f3] px-2 py-1 text-xs text-[#277d62]">{transaction.status}</span></td>
                     <td>{transaction.date}</td>
-                    <td>{role === "staff" && <button onClick={() => setNotice("Transaction flagged for admin review.")} className="text-xs font-semibold text-[#b06e30]">Flag</button>}</td>
                   </tr>
                 ))}
               </tbody>
@@ -285,7 +278,7 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
     );
   }
 
-  if (section === "loan-review" || section === "loan-management") {
+  if (section === "loan-management") {
     return (
       <Panel title="Loan applications">
         <div className="overflow-x-auto">
@@ -297,14 +290,10 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
                   <td className="py-3.5 font-semibold">{row.id}</td><td>{row.customer}</td><td>{row.type}</td><td className="font-semibold">{row.amount}</td>
                   <td><span className="rounded-full bg-[#fff4df] px-2 py-1 text-xs text-[#a77728]">{row.status}</span></td>
                   <td>
-                    {role === "admin" ? (
-                      <div className="flex gap-2">
-                        <button onClick={() => updateLoan(row.id, "Approved")} className="rounded-lg bg-[#176b50] px-3 py-1.5 text-xs text-white">Approve</button>
-                        <button onClick={() => updateLoan(row.id, "Rejected")} className="rounded-lg border px-3 py-1.5 text-xs">Reject</button>
-                      </div>
-                    ) : (
-                      <button onClick={() => updateLoan(row.id, "Under Review")} className="rounded-lg border px-3 py-1.5 text-xs font-semibold">Add note / Forward</button>
-                    )}
+                    <div className="flex gap-2">
+                      <button onClick={() => updateLoan(row.id, "Approved")} className="rounded-lg bg-[#176b50] px-3 py-1.5 text-xs text-white">Approve</button>
+                      <button onClick={() => updateLoan(row.id, "Rejected")} className="rounded-lg border px-3 py-1.5 text-xs">Reject</button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -339,5 +328,5 @@ export default function OperationsContent({ role, section, setNotice }: Operatio
     );
   }
 
-  return <Panel title="Customer workspace"><CustomerTable customers={customers} freeze={freeze} setFreeze={setFreeze} staff={role === "staff"} /></Panel>;
+  return <Panel title="Customer workspace"><CustomerTable customers={customers} freeze={freeze} setFreeze={setFreeze} staff={false} /></Panel>;
 }
