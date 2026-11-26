@@ -9,14 +9,12 @@ import { toast } from "sonner";
 import ThemeToggle from "@/components/ThemeToggle";
 import TrellisLogo from "@/components/TrellisLogo";
 import desktopLogo from "@/assets/trellis-dark.png";
-import { useAppDispatch } from "@/store/hooks";
-import { setAuth, type Role } from "@/store/store";
+import type { Role } from "@/store/store";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<Role>("customer");
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
   const register = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,9 +48,8 @@ export default function RegisterPage() {
         return;
       }
 
-      dispatch(setAuth({ role: result.role, name: result.name }));
-      toast.success("creating account successful!");
-      router.push("/dashboard");
+      toast.success("Registration successful. Please sign in.");
+      router.push("/login");
     } catch {
       toast.error("Unable to create your account. Check your connection and try again.");
     } finally {
