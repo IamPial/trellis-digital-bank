@@ -99,6 +99,9 @@ export default function BankWorkspace({ section = "overview" }: Props) {
   const name = auth.name || roleNames[role];
   const nav = navigation[role];
   const normalizedSection = section.toLowerCase().replaceAll("-", " ");
+  const pageTitle = role === "customer" && section === "overview"
+    ? `Welcome back, ${name.split(" ")[0]} !`
+    : nav.find(([, key]) => key === section)?.[0] || normalizedSection;
   const today = format(new Date(), "EEEE, MMMM d");
 
   const logout = () => {
@@ -179,7 +182,7 @@ export default function BankWorkspace({ section = "overview" }: Props) {
           <div className="mb-7">
             <p className="text-sm text-[#8b9690]">{today}</p>
             <h1 className="mt-1 text-2xl font-semibold capitalize tracking-tight md:text-[28px]">
-              {nav.find(([, key]) => key === section)?.[0] || normalizedSection}
+              {pageTitle}
             </h1>
           </div>
           {role === "customer" ? (
