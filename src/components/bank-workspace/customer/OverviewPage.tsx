@@ -56,12 +56,12 @@ export default function OverviewPage({
       </div>
       <section className="grid gap-4 md:grid-cols-3">
         <Card title="Total balance" value={`$${accounts.reduce((sum, account) => sum + account.balance, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`} change={`${accounts.length} active accounts`} icon={CircleDollarSign} />
-        <Card title="Monthly deposits" value={`$${transactions.filter((transaction) => transaction.amount > 0).reduce((sum, transaction) => sum + transaction.amount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`} change="Database transaction history" icon={ArrowDownLeft} />
-        <Card title="Monthly spending" value={`$${transactions.filter((transaction) => transaction.amount < 0).reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`} change="Database transaction history" icon={ArrowUpRight} />
+        <Card title="Monthly deposits" value={`$${transactions.filter((transaction) => transaction.amount > 0).reduce((sum, transaction) => sum + transaction.amount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`} change="Deposit transaction history" icon={ArrowDownLeft} />
+        <Card title="Monthly spending" value={`$${transactions.filter((transaction) => transaction.amount < 0).reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`} change="Spending transaction history" icon={ArrowUpRight} />
       </section>
-      <section className="mt-5 grid gap-5 xl:grid-cols-[1.55fr_.75fr]">
+      <section className="mt-5 grid gap-5 xl:grid-cols-[1.55fr_.75fr] mb-3">
         <Panel title="Cash flow" subtitle="Monthly income and spending" className="min-w-0">
-          <div className="h-[280px] w-full min-w-0">
+          <div className="h-70 w-full min-w-0">
             {cashFlowData.length ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={cashFlowData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
