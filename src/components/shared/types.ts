@@ -13,6 +13,14 @@ export type CustomerRow = {
   balance: number;
 };
 
+export type LoanRow = {
+  id: string;
+  customer: string;
+  amount: string;
+  type: string;
+  status: string;
+};
+
 export type CustomerTableProps = {
   customers: CustomerRow[];
   freeze: Record<string, boolean>;
