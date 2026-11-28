@@ -37,8 +37,10 @@ export default function CustomerContent({ section, setNotice }: CustomerContentP
       return (
         <AccountsPage
           accounts={dashboard.accounts}
+          accountsLoading={dashboard.accountsLoading}
           accountQuery={dashboard.accountQuery}
           requestOpen={dashboard.requestOpen}
+          setNotice={setNotice}
           onAccountQueryChange={dashboard.setAccountQuery}
           onOpenRequest={dashboard.openRequest}
           onCloseRequest={dashboard.closeRequest}

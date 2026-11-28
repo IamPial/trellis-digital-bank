@@ -1,14 +1,17 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { CreditCard } from "lucide-react";
+import { Copy, CreditCard } from "lucide-react";
 import SimpleModal from "@/components/shared/SimpleModal";
+import type { Notice } from "@/components/shared/types";
 import type { AccountView } from "./types";
 
 type AccountsPageProps = {
   accounts: AccountView[];
+  accountsLoading: boolean;
   accountQuery: string;
   requestOpen: boolean;
+  setNotice: Notice;
   onAccountQueryChange: (query: string) => void;
   onOpenRequest: () => void;
   onCloseRequest: () => void;
@@ -17,13 +20,24 @@ type AccountsPageProps = {
 
 export default function AccountsPage({
   accounts,
+  accountsLoading,
   accountQuery,
   requestOpen,
+  setNotice,
   onAccountQueryChange,
   onOpenRequest,
   onCloseRequest,
   onSubmitRequest,
 }: AccountsPageProps) {
+  const copyAccountNumber = async (accountNumber: string) => {
+    try {
+      await navigator.clipboard.writeText(accountNumber);
+      setNotice("Account number copied.");
+    } catch {
+      setNotice("Unable to copy the account number. Please select and copy it manually.", "error");
+    }
+  };
+
   return (
     <div>
       <div className="mb-5 flex gap-3">
@@ -31,6 +45,8 @@ export default function AccountsPage({
         <button onClick={onOpenRequest} className="h-11 rounded-lg border border-[#dde4df] bg-white px-4 text-sm font-semibold">Request account</button>
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {accountsLoading && <p className="text-sm text-[#929b96]">Loading your accounts...</p>}
+        {!accountsLoading && accounts.length === 0 && <p className="text-sm text-[#929b96]">No bank accounts found.</p>}
         {accounts.filter((account) => account.label.toLowerCase().includes(accountQuery.toLowerCase())).map((account) => (
           <div key={account.key} className="rounded-2xl border border-[#edf0ee] bg-white p-5">
             <div className="flex items-center justify-between">
@@ -38,7 +54,22 @@ export default function AccountsPage({
               <span className="rounded-full bg-[#edf7f3] px-2 py-1 text-xs text-[#277d62]">{account.status}</span>
             </div>
             <h3 className="mt-5 font-semibold">{account.label} Account</h3>
-            <p className="mt-1 text-xs text-[#929b96]">{account.type} •••• {account.last}</p>
+            <p className="mt-1 text-xs text-[#929b96]">{account.type}</p>
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs text-[#929b96]">Account number</p>
+                <p className="font-mono text-sm font-semibold tracking-wide">{account.accountNumber}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void copyAccountNumber(account.accountNumber)}
+                aria-label={`Copy account number ${account.accountNumber}`}
+                className="flex items-center gap-1 rounded-lg border border-[#dde4df] px-2.5 py-2 text-xs font-semibold text-[#176b50] hover:bg-[#edf5f1]"
+              >
+                <Copy size={14} />Copy
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-[#929b96]">Share this number to receive a transfer.</p>
             <p className="mt-5 text-2xl font-semibold">${account.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
             <div className="mt-4 flex justify-between border-t border-[#edf0ee] pt-4 text-xs text-[#7d8882]">
               <span>Available</span><span>{account.limit}</span>

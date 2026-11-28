@@ -2,6 +2,7 @@ export type AccountView = {
   id: string;
   key: "checking" | "savings" | "business";
   label: string;
+  accountNumber: string;
   last: string;
   balance: number;
   type: string;

@@ -12,17 +12,12 @@ import type { Notice } from "@/components/shared/types";
 import { getCashFlowData, mapAccounts, type AccountResponse } from "./data";
 import type { AccountView, CustomerLoan } from "./types";
 
-const initialAccounts: AccountView[] = [
-  { id: "", key: "checking", label: "Checking", last: "4821", balance: 24680.45, type: "Savings Account", status: "Active", limit: "$10,000/day" },
-  { id: "", key: "savings", label: "Savings", last: "1098", balance: 18240.2, type: "Savings Account", status: "Active", limit: "$5,000/day" },
-  { id: "", key: "business", label: "Business", last: "7734", balance: 5420.1, type: "Business Account", status: "Active", limit: "$25,000/day" },
-];
-
 export default function useCustomerDashboard(setNotice: Notice, section: string) {
   const dispatch = useAppDispatch();
   const transactions = useAppSelector((state) => state.transactions.items);
   const selectedAccount = useAppSelector((state) => state.accounts.selected);
-  const [accounts, setAccounts] = useState(initialAccounts);
+  const [accounts, setAccounts] = useState<AccountView[]>([]);
+  const [accountsLoading, setAccountsLoading] = useState(true);
   const [accountQuery, setAccountQuery] = useState("");
   const [transferOpen, setTransferOpen] = useState(false);
   const [requestOpen, setRequestOpen] = useState(false);
@@ -47,12 +42,14 @@ export default function useCustomerDashboard(setNotice: Notice, section: string)
       ]);
       setAccounts(mapAccounts(accountData.accounts));
       setLoans(loanData.loans);
+      setAccountsLoading(false);
       setLoansLoading(false);
       dispatch(fetchTransactions());
     };
 
     const refresh = () => {
       void refreshCustomerData().catch(() => {
+        setAccountsLoading(false);
         setLoansLoading(false);
         setNotice("Unable to refresh your account and loan details.", "error");
       });
@@ -172,6 +169,7 @@ export default function useCustomerDashboard(setNotice: Notice, section: string)
 
   return {
     accounts,
+    accountsLoading,
     accountQuery,
     cashFlowData: getCashFlowData(transactions),
     loanOpen,

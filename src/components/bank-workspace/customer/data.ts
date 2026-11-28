@@ -17,6 +17,7 @@ export function mapAccounts(accounts: AccountResponse[]): AccountView[] {
       id: account.id,
       key: (["checking", "savings", "business"][index] || "business") as AccountView["key"],
       label: accountType,
+      accountNumber: account.accountNumber,
       last: account.accountNumber.slice(-4),
       balance: Number(account.balance),
       type: `${accountType} Account`,
