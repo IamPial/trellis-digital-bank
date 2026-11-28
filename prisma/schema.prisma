@@ -7,6 +7,97 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id                 String         @id @default(uuid())
+  email              String         @unique
+  passwordHash       String
+  transactionPinHash String         @default("")
+  fullName           String
+  role               Role
+  status             String         @default("active")
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  accounts           Account[]
+  loans              Loan[]
+  moneyRequests      MoneyRequest[]
+  notifications      Notification[]
+}
+
+model Account {
+  id                   String         @id @default(uuid())
+  customerId           String
+  accountNumber        String         @unique
+  accountType          AccountType
+  balance              Decimal        @default(0) @db.Decimal(14, 2)
+  dailyLimit           Decimal        @default(10000) @db.Decimal(14, 2)
+  status               AccountStatus  @default(active)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  customer             User           @relation(fields: [customerId], references: [id])
+  moneyRequests        MoneyRequest[]
+  receivedTransactions Transaction[]  @relation("ReceiverAccount")
+  sentTransactions     Transaction[]  @relation("SenderAccount")
+}
+
+model Transaction {
+  id                String            @id @default(uuid())
+  transactionId     String            @unique
+  senderAccountId   String?
+  receiverAccountId String?
+  transactionType   TransactionType
+  amount            Decimal           @db.Decimal(14, 2)
+  fee               Decimal           @default(0) @db.Decimal(14, 2)
+  status            TransactionStatus @default(pending)
+  description       String?
+  createdAt         DateTime          @default(now())
+  receiverAccount   Account?          @relation("ReceiverAccount", fields: [receiverAccountId], references: [id])
+  senderAccount     Account?          @relation("SenderAccount", fields: [senderAccountId], references: [id])
+}
+
+model Loan {
+  id                 String     @id @default(uuid())
+  customerId         String
+  loanType           String
+  requestedAmount    Decimal    @db.Decimal(14, 2)
+  loanDurationMonths Int
+  monthlyIncome      Decimal?   @db.Decimal(14, 2)
+  employmentStatus   String?
+  description        String?
+  status             LoanStatus @default(pending)
+  approvedAmount     Decimal?   @db.Decimal(14, 2)
+  remainingBalance   Decimal?   @db.Decimal(14, 2)
+  internalNotes      String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  customer           User       @relation(fields: [customerId], references: [id])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model MoneyRequest {
+  id           String             @id @default(uuid())
+  customerId   String
+  accountId    String
+  type         MoneyRequestType
+  amount       Decimal            @db.Decimal(14, 2)
+  description  String?
+  status       MoneyRequestStatus @default(pending)
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  account      Account            @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  customer     User               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
 enum Role {
   admin
   staff
@@ -58,95 +149,4 @@ enum MoneyRequestStatus {
   pending
   approved
   rejected
-}
-
-model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String
-  transactionPinHash String @default("")
-  fullName     String
-  role         Role
-  status       String    @default("active")
-  accounts     Account[]
-  loans        Loan[]
-  notifications Notification[]
-  moneyRequests MoneyRequest[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-}
-
-model Account {
-  id            String        @id @default(uuid())
-  customerId    String
-  customer      User          @relation(fields: [customerId], references: [id])
-  accountNumber String        @unique
-  accountType   AccountType
-  balance       Decimal       @default(0) @db.Decimal(14, 2)
-  dailyLimit    Decimal       @default(10000) @db.Decimal(14, 2)
-  status        AccountStatus @default(active)
-  sentTransactions     Transaction[] @relation("SenderAccount")
-  receivedTransactions Transaction[] @relation("ReceiverAccount")
-  moneyRequests MoneyRequest[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-}
-
-model Transaction {
-  id              String            @id @default(uuid())
-  transactionId   String            @unique
-  senderAccountId String?
-  senderAccount   Account?          @relation("SenderAccount", fields: [senderAccountId], references: [id])
-  receiverAccountId String?
-  receiverAccount Account?          @relation("ReceiverAccount", fields: [receiverAccountId], references: [id])
-  transactionType TransactionType
-  amount          Decimal           @db.Decimal(14, 2)
-  fee             Decimal           @default(0) @db.Decimal(14, 2)
-  status          TransactionStatus @default(pending)
-  description     String?
-  createdAt       DateTime          @default(now())
-}
-
-model Loan {
-  id                   String     @id @default(uuid())
-  customerId           String
-  customer             User       @relation(fields: [customerId], references: [id])
-  loanType             String
-  requestedAmount      Decimal    @db.Decimal(14, 2)
-  loanDurationMonths   Int
-  monthlyIncome        Decimal?   @db.Decimal(14, 2)
-  employmentStatus     String?
-  description          String?
-  status               LoanStatus @default(pending)
-  approvedAmount       Decimal?   @db.Decimal(14, 2)
-  remainingBalance     Decimal?   @db.Decimal(14, 2)
-  internalNotes        String?
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @updatedAt
-}
-
-model Notification {
-  id        String    @id @default(uuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  title     String
-  message   String
-  readAt    DateTime?
-  createdAt DateTime  @default(now())
-}
-
-model MoneyRequest {
-  id           String            @id @default(uuid())
-  customerId   String
-  customer     User              @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  accountId    String
-  type         MoneyRequestType
-  amount       Decimal           @db.Decimal(14, 2)
-  description  String?
-  status       MoneyRequestStatus @default(pending)
-  reviewedById String?
-  reviewedAt   DateTime?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  account      Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
