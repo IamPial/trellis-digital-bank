@@ -62,4 +62,4 @@ The transfer API validates role, 4-digit PIN format, positive server-side amount
 
 ## Environment Variables
 
-No environment variables are required for the demo. Production deployment may add `DATABASE_URL`, `AUTH_SECRET`, and payment-provider credentials as integrations are added.
+No environment variables are required for the demo. Production deployment may add `DATABASE_URL` and payment-provider credentials as integrations are added.
