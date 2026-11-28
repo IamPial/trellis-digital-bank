@@ -260,8 +260,8 @@ export type TransactionWhereInput = {
   status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   description?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
-  senderAccount?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
   receiverAccount?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
+  senderAccount?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
 }
 
 export type TransactionOrderByWithRelationInput = {
@@ -275,8 +275,8 @@ export type TransactionOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  senderAccount?: Prisma.AccountOrderByWithRelationInput
   receiverAccount?: Prisma.AccountOrderByWithRelationInput
+  senderAccount?: Prisma.AccountOrderByWithRelationInput
 }
 
 export type TransactionWhereUniqueInput = Prisma.AtLeast<{
@@ -293,8 +293,8 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   description?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
-  senderAccount?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
   receiverAccount?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
+  senderAccount?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.AccountWhereInput> | null
 }, "id" | "transactionId">
 
 export type TransactionOrderByWithAggregationInput = {
@@ -340,8 +340,8 @@ export type TransactionCreateInput = {
   status?: $Enums.TransactionStatus
   description?: string | null
   createdAt?: Date | string
-  senderAccount?: Prisma.AccountCreateNestedOneWithoutSentTransactionsInput
   receiverAccount?: Prisma.AccountCreateNestedOneWithoutReceivedTransactionsInput
+  senderAccount?: Prisma.AccountCreateNestedOneWithoutSentTransactionsInput
 }
 
 export type TransactionUncheckedCreateInput = {
@@ -366,8 +366,8 @@ export type TransactionUpdateInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  senderAccount?: Prisma.AccountUpdateOneWithoutSentTransactionsNestedInput
   receiverAccount?: Prisma.AccountUpdateOneWithoutReceivedTransactionsNestedInput
+  senderAccount?: Prisma.AccountUpdateOneWithoutSentTransactionsNestedInput
 }
 
 export type TransactionUncheckedUpdateInput = {
@@ -479,13 +479,6 @@ export type TransactionSumOrderByAggregateInput = {
   fee?: Prisma.SortOrder
 }
 
-export type TransactionCreateNestedManyWithoutSenderAccountInput = {
-  create?: Prisma.XOR<Prisma.TransactionCreateWithoutSenderAccountInput, Prisma.TransactionUncheckedCreateWithoutSenderAccountInput> | Prisma.TransactionCreateWithoutSenderAccountInput[] | Prisma.TransactionUncheckedCreateWithoutSenderAccountInput[]
-  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutSenderAccountInput | Prisma.TransactionCreateOrConnectWithoutSenderAccountInput[]
-  createMany?: Prisma.TransactionCreateManySenderAccountInputEnvelope
-  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
-}
-
 export type TransactionCreateNestedManyWithoutReceiverAccountInput = {
   create?: Prisma.XOR<Prisma.TransactionCreateWithoutReceiverAccountInput, Prisma.TransactionUncheckedCreateWithoutReceiverAccountInput> | Prisma.TransactionCreateWithoutReceiverAccountInput[] | Prisma.TransactionUncheckedCreateWithoutReceiverAccountInput[]
   connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutReceiverAccountInput | Prisma.TransactionCreateOrConnectWithoutReceiverAccountInput[]
@@ -493,7 +486,7 @@ export type TransactionCreateNestedManyWithoutReceiverAccountInput = {
   connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
 }
 
-export type TransactionUncheckedCreateNestedManyWithoutSenderAccountInput = {
+export type TransactionCreateNestedManyWithoutSenderAccountInput = {
   create?: Prisma.XOR<Prisma.TransactionCreateWithoutSenderAccountInput, Prisma.TransactionUncheckedCreateWithoutSenderAccountInput> | Prisma.TransactionCreateWithoutSenderAccountInput[] | Prisma.TransactionUncheckedCreateWithoutSenderAccountInput[]
   connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutSenderAccountInput | Prisma.TransactionCreateOrConnectWithoutSenderAccountInput[]
   createMany?: Prisma.TransactionCreateManySenderAccountInputEnvelope
@@ -507,18 +500,11 @@ export type TransactionUncheckedCreateNestedManyWithoutReceiverAccountInput = {
   connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
 }
 
-export type TransactionUpdateManyWithoutSenderAccountNestedInput = {
+export type TransactionUncheckedCreateNestedManyWithoutSenderAccountInput = {
   create?: Prisma.XOR<Prisma.TransactionCreateWithoutSenderAccountInput, Prisma.TransactionUncheckedCreateWithoutSenderAccountInput> | Prisma.TransactionCreateWithoutSenderAccountInput[] | Prisma.TransactionUncheckedCreateWithoutSenderAccountInput[]
   connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutSenderAccountInput | Prisma.TransactionCreateOrConnectWithoutSenderAccountInput[]
-  upsert?: Prisma.TransactionUpsertWithWhereUniqueWithoutSenderAccountInput | Prisma.TransactionUpsertWithWhereUniqueWithoutSenderAccountInput[]
   createMany?: Prisma.TransactionCreateManySenderAccountInputEnvelope
-  set?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
-  disconnect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
-  delete?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
   connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
-  update?: Prisma.TransactionUpdateWithWhereUniqueWithoutSenderAccountInput | Prisma.TransactionUpdateWithWhereUniqueWithoutSenderAccountInput[]
-  updateMany?: Prisma.TransactionUpdateManyWithWhereWithoutSenderAccountInput | Prisma.TransactionUpdateManyWithWhereWithoutSenderAccountInput[]
-  deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
 }
 
 export type TransactionUpdateManyWithoutReceiverAccountNestedInput = {
@@ -535,7 +521,7 @@ export type TransactionUpdateManyWithoutReceiverAccountNestedInput = {
   deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
 }
 
-export type TransactionUncheckedUpdateManyWithoutSenderAccountNestedInput = {
+export type TransactionUpdateManyWithoutSenderAccountNestedInput = {
   create?: Prisma.XOR<Prisma.TransactionCreateWithoutSenderAccountInput, Prisma.TransactionUncheckedCreateWithoutSenderAccountInput> | Prisma.TransactionCreateWithoutSenderAccountInput[] | Prisma.TransactionUncheckedCreateWithoutSenderAccountInput[]
   connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutSenderAccountInput | Prisma.TransactionCreateOrConnectWithoutSenderAccountInput[]
   upsert?: Prisma.TransactionUpsertWithWhereUniqueWithoutSenderAccountInput | Prisma.TransactionUpsertWithWhereUniqueWithoutSenderAccountInput[]
@@ -563,6 +549,20 @@ export type TransactionUncheckedUpdateManyWithoutReceiverAccountNestedInput = {
   deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
 }
 
+export type TransactionUncheckedUpdateManyWithoutSenderAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutSenderAccountInput, Prisma.TransactionUncheckedCreateWithoutSenderAccountInput> | Prisma.TransactionCreateWithoutSenderAccountInput[] | Prisma.TransactionUncheckedCreateWithoutSenderAccountInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutSenderAccountInput | Prisma.TransactionCreateOrConnectWithoutSenderAccountInput[]
+  upsert?: Prisma.TransactionUpsertWithWhereUniqueWithoutSenderAccountInput | Prisma.TransactionUpsertWithWhereUniqueWithoutSenderAccountInput[]
+  createMany?: Prisma.TransactionCreateManySenderAccountInputEnvelope
+  set?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  disconnect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  delete?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  update?: Prisma.TransactionUpdateWithWhereUniqueWithoutSenderAccountInput | Prisma.TransactionUpdateWithWhereUniqueWithoutSenderAccountInput[]
+  updateMany?: Prisma.TransactionUpdateManyWithWhereWithoutSenderAccountInput | Prisma.TransactionUpdateManyWithWhereWithoutSenderAccountInput[]
+  deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
+}
+
 export type EnumTransactionTypeFieldUpdateOperationsInput = {
   set?: $Enums.TransactionType
 }
@@ -573,40 +573,6 @@ export type EnumTransactionStatusFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
-}
-
-export type TransactionCreateWithoutSenderAccountInput = {
-  id?: string
-  transactionId: string
-  transactionType: $Enums.TransactionType
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  fee?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: $Enums.TransactionStatus
-  description?: string | null
-  createdAt?: Date | string
-  receiverAccount?: Prisma.AccountCreateNestedOneWithoutReceivedTransactionsInput
-}
-
-export type TransactionUncheckedCreateWithoutSenderAccountInput = {
-  id?: string
-  transactionId: string
-  receiverAccountId?: string | null
-  transactionType: $Enums.TransactionType
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  fee?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: $Enums.TransactionStatus
-  description?: string | null
-  createdAt?: Date | string
-}
-
-export type TransactionCreateOrConnectWithoutSenderAccountInput = {
-  where: Prisma.TransactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.TransactionCreateWithoutSenderAccountInput, Prisma.TransactionUncheckedCreateWithoutSenderAccountInput>
-}
-
-export type TransactionCreateManySenderAccountInputEnvelope = {
-  data: Prisma.TransactionCreateManySenderAccountInput | Prisma.TransactionCreateManySenderAccountInput[]
-  skipDuplicates?: boolean
 }
 
 export type TransactionCreateWithoutReceiverAccountInput = {
@@ -643,36 +609,38 @@ export type TransactionCreateManyReceiverAccountInputEnvelope = {
   skipDuplicates?: boolean
 }
 
-export type TransactionUpsertWithWhereUniqueWithoutSenderAccountInput = {
+export type TransactionCreateWithoutSenderAccountInput = {
+  id?: string
+  transactionId: string
+  transactionType: $Enums.TransactionType
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  fee?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.TransactionStatus
+  description?: string | null
+  createdAt?: Date | string
+  receiverAccount?: Prisma.AccountCreateNestedOneWithoutReceivedTransactionsInput
+}
+
+export type TransactionUncheckedCreateWithoutSenderAccountInput = {
+  id?: string
+  transactionId: string
+  receiverAccountId?: string | null
+  transactionType: $Enums.TransactionType
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  fee?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.TransactionStatus
+  description?: string | null
+  createdAt?: Date | string
+}
+
+export type TransactionCreateOrConnectWithoutSenderAccountInput = {
   where: Prisma.TransactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.TransactionUpdateWithoutSenderAccountInput, Prisma.TransactionUncheckedUpdateWithoutSenderAccountInput>
   create: Prisma.XOR<Prisma.TransactionCreateWithoutSenderAccountInput, Prisma.TransactionUncheckedCreateWithoutSenderAccountInput>
 }
 
-export type TransactionUpdateWithWhereUniqueWithoutSenderAccountInput = {
-  where: Prisma.TransactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.TransactionUpdateWithoutSenderAccountInput, Prisma.TransactionUncheckedUpdateWithoutSenderAccountInput>
-}
-
-export type TransactionUpdateManyWithWhereWithoutSenderAccountInput = {
-  where: Prisma.TransactionScalarWhereInput
-  data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutSenderAccountInput>
-}
-
-export type TransactionScalarWhereInput = {
-  AND?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
-  OR?: Prisma.TransactionScalarWhereInput[]
-  NOT?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
-  id?: Prisma.StringFilter<"Transaction"> | string
-  transactionId?: Prisma.StringFilter<"Transaction"> | string
-  senderAccountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
-  receiverAccountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
-  transactionType?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
-  amount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  fee?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
-  description?: Prisma.StringNullableFilter<"Transaction"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
+export type TransactionCreateManySenderAccountInputEnvelope = {
+  data: Prisma.TransactionCreateManySenderAccountInput | Prisma.TransactionCreateManySenderAccountInput[]
+  skipDuplicates?: boolean
 }
 
 export type TransactionUpsertWithWhereUniqueWithoutReceiverAccountInput = {
@@ -691,16 +659,36 @@ export type TransactionUpdateManyWithWhereWithoutReceiverAccountInput = {
   data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutReceiverAccountInput>
 }
 
-export type TransactionCreateManySenderAccountInput = {
-  id?: string
-  transactionId: string
-  receiverAccountId?: string | null
-  transactionType: $Enums.TransactionType
-  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  fee?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: $Enums.TransactionStatus
-  description?: string | null
-  createdAt?: Date | string
+export type TransactionScalarWhereInput = {
+  AND?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
+  OR?: Prisma.TransactionScalarWhereInput[]
+  NOT?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
+  id?: Prisma.StringFilter<"Transaction"> | string
+  transactionId?: Prisma.StringFilter<"Transaction"> | string
+  senderAccountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  receiverAccountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  transactionType?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
+  amount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  fee?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
+  description?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
+}
+
+export type TransactionUpsertWithWhereUniqueWithoutSenderAccountInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  update: Prisma.XOR<Prisma.TransactionUpdateWithoutSenderAccountInput, Prisma.TransactionUncheckedUpdateWithoutSenderAccountInput>
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutSenderAccountInput, Prisma.TransactionUncheckedCreateWithoutSenderAccountInput>
+}
+
+export type TransactionUpdateWithWhereUniqueWithoutSenderAccountInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  data: Prisma.XOR<Prisma.TransactionUpdateWithoutSenderAccountInput, Prisma.TransactionUncheckedUpdateWithoutSenderAccountInput>
+}
+
+export type TransactionUpdateManyWithWhereWithoutSenderAccountInput = {
+  where: Prisma.TransactionScalarWhereInput
+  data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutSenderAccountInput>
 }
 
 export type TransactionCreateManyReceiverAccountInput = {
@@ -715,40 +703,16 @@ export type TransactionCreateManyReceiverAccountInput = {
   createdAt?: Date | string
 }
 
-export type TransactionUpdateWithoutSenderAccountInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  transactionType?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  fee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  receiverAccount?: Prisma.AccountUpdateOneWithoutReceivedTransactionsNestedInput
-}
-
-export type TransactionUncheckedUpdateWithoutSenderAccountInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  receiverAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  transactionType?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  fee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type TransactionUncheckedUpdateManyWithoutSenderAccountInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  receiverAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  transactionType?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
-  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  fee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type TransactionCreateManySenderAccountInput = {
+  id?: string
+  transactionId: string
+  receiverAccountId?: string | null
+  transactionType: $Enums.TransactionType
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  fee?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.TransactionStatus
+  description?: string | null
+  createdAt?: Date | string
 }
 
 export type TransactionUpdateWithoutReceiverAccountInput = {
@@ -787,6 +751,42 @@ export type TransactionUncheckedUpdateManyWithoutReceiverAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type TransactionUpdateWithoutSenderAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionType?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  fee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  receiverAccount?: Prisma.AccountUpdateOneWithoutReceivedTransactionsNestedInput
+}
+
+export type TransactionUncheckedUpdateWithoutSenderAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
+  receiverAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transactionType?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  fee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TransactionUncheckedUpdateManyWithoutSenderAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
+  receiverAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transactionType?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  fee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -800,8 +800,8 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   status?: boolean
   description?: boolean
   createdAt?: boolean
-  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
   receiverAccount?: boolean | Prisma.Transaction$receiverAccountArgs<ExtArgs>
+  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
 export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -815,8 +815,8 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   status?: boolean
   description?: boolean
   createdAt?: boolean
-  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
   receiverAccount?: boolean | Prisma.Transaction$receiverAccountArgs<ExtArgs>
+  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
 export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -830,8 +830,8 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   status?: boolean
   description?: boolean
   createdAt?: boolean
-  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
   receiverAccount?: boolean | Prisma.Transaction$receiverAccountArgs<ExtArgs>
+  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
 export type TransactionSelectScalar = {
@@ -849,23 +849,23 @@ export type TransactionSelectScalar = {
 
 export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transactionId" | "senderAccountId" | "receiverAccountId" | "transactionType" | "amount" | "fee" | "status" | "description" | "createdAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
   receiverAccount?: boolean | Prisma.Transaction$receiverAccountArgs<ExtArgs>
+  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
 }
 export type TransactionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
   receiverAccount?: boolean | Prisma.Transaction$receiverAccountArgs<ExtArgs>
+  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
 }
 export type TransactionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
   receiverAccount?: boolean | Prisma.Transaction$receiverAccountArgs<ExtArgs>
+  senderAccount?: boolean | Prisma.Transaction$senderAccountArgs<ExtArgs>
 }
 
 export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Transaction"
   objects: {
-    senderAccount: Prisma.$AccountPayload<ExtArgs> | null
     receiverAccount: Prisma.$AccountPayload<ExtArgs> | null
+    senderAccount: Prisma.$AccountPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1272,8 +1272,8 @@ readonly fields: TransactionFieldRefs;
  */
 export interface Prisma__TransactionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  senderAccount<T extends Prisma.Transaction$senderAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$senderAccountArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   receiverAccount<T extends Prisma.Transaction$receiverAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$receiverAccountArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  senderAccount<T extends Prisma.Transaction$senderAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$senderAccountArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1714,9 +1714,9 @@ export type TransactionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * Transaction.senderAccount
+ * Transaction.receiverAccount
  */
-export type Transaction$senderAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Transaction$receiverAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Account
    */
@@ -1733,9 +1733,9 @@ export type Transaction$senderAccountArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
- * Transaction.receiverAccount
+ * Transaction.senderAccount
  */
-export type Transaction$receiverAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Transaction$senderAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Account
    */
