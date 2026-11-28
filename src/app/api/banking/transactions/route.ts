@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma, TransactionType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 
@@ -14,19 +15,19 @@ export async function GET(request: Request) {
   const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize") || 20)));
   const skip = (page - 1) * pageSize;
 
-  const accountFilter = session.role === "customer"
+  const transactionType = Object.values(TransactionType).find((value) => value === type);
+  const accountFilter: Prisma.TransactionWhereInput = session.role === "customer"
     ? {
         OR: [
-          { senderAccount: { customerId: String(session.sub) } },
-          { receiverAccount: { customerId: String(session.sub) } },
+          { senderAccount: { is: { customerId: String(session.sub) } } },
+          { receiverAccount: { is: { customerId: String(session.sub) } } },
         ],
       }
     : {};
-  const transactionTypes = ["deposit", "withdrawal", "fund_transfer", "loan_disbursement", "loan_repayment"];
-  const where: any = {
+  const where: Prisma.TransactionWhereInput = {
     ...accountFilter,
     ...(query ? { OR: [{ transactionId: { contains: query, mode: "insensitive" } }, { description: { contains: query, mode: "insensitive" } }] } : {}),
-    ...(type && transactionTypes.includes(type) ? { transactionType: type } : {}),
+    ...(transactionType ? { transactionType } : {}),
     ...(from || to ? { createdAt: { ...(from ? { gte: new Date(from) } : {}), ...(to ? { lte: new Date(`${to}T23:59:59.999Z`) } : {}) } } : {}),
   };
 
@@ -34,8 +35,8 @@ export async function GET(request: Request) {
     prisma.transaction.findMany({
       where,
       include: {
-        senderAccount: { select: { accountNumber: true, customer: { select: { fullName: true } } } },
-        receiverAccount: { select: { accountNumber: true, customer: { select: { fullName: true } } } },
+        senderAccount: { select: { accountNumber: true, customer: { select: { id: true, fullName: true } } } },
+        receiverAccount: { select: { accountNumber: true, customer: { select: { id: true, fullName: true } } } },
       },
       orderBy: { createdAt: "desc" },
       skip,
@@ -43,5 +44,11 @@ export async function GET(request: Request) {
     }),
     prisma.transaction.count({ where }),
   ]);
-  return NextResponse.json({ transactions, pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) } });
+  const transactionsWithDirection = transactions.map((transaction) => {
+    const direction = session.role === "customer"
+      ? transaction.senderAccount?.customer.id === String(session.sub) ? "debit" : "credit"
+      : transaction.receiverAccountId ? "credit" : "debit";
+    return { ...transaction, direction };
+  });
+  return NextResponse.json({ transactions: transactionsWithDirection, pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) } });
 }
