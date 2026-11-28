@@ -80,13 +80,23 @@ const loanSlice = createSlice({
 export const fetchTransactions = createAsyncThunk("transactions/fetch", async () => {
   const response = await fetch("/api/banking/transactions");
   if (!response.ok) throw new Error("Unable to load transactions");
-  const data = await response.json();
-  return data.transactions.map((transaction: any): Transaction => ({
+  const data = await response.json() as {
+    transactions: {
+      transactionId: string;
+      description: string | null;
+      transactionType: string;
+      amount: number | string;
+      direction: "credit" | "debit";
+      status: string;
+      createdAt: string;
+    }[];
+  };
+  return data.transactions.map((transaction): Transaction => ({
     id: transaction.transactionId,
     name: transaction.description || transaction.transactionType.replaceAll("_", " "),
     detail: transaction.transactionType.replaceAll("_", " "),
-    amount: Number(transaction.amount) * (transaction.receiverAccountId ? 1 : -1),
-    type: transaction.receiverAccountId ? "credit" : "debit",
+    amount: Math.abs(Number(transaction.amount)) * (transaction.direction === "credit" ? 1 : -1),
+    type: transaction.direction,
     status: transaction.status === "completed" ? "Completed" : transaction.status === "pending" ? "Pending" : "Failed",
     date: new Date(transaction.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
   }));
@@ -101,8 +111,8 @@ export const fetchAccounts = createAsyncThunk("accounts/fetch", async () => {
 export const fetchLoans = createAsyncThunk("loans/fetch", async () => {
   const response = await fetch("/api/banking/loans");
   if (!response.ok) throw new Error("Unable to load loans");
-  const data = await response.json();
-  return data.loans as any[];
+  const data = await response.json() as { loans: unknown[] };
+  return data.loans;
 });
 
 export const { setAuth, clearAuth } = authSlice.actions;
