@@ -34,9 +34,9 @@ Choose a role on the sign-in screen:
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@trellis.bank | trellisdemo |
-| Bank Staff | staff@trellis.bank | trellisdemo |
-| Customer | jamie@trellis.bank | trellisdemo |
+| Admin | admin@trellis.bank | 11223344 |
+| Bank Staff | baru@mailinator.com | 112233mm |
+| Customer | jamie@trellis.bank | 112233mm |
 
 ## Local Setup
 
