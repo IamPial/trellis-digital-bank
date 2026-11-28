@@ -13,7 +13,7 @@ import type { Role } from "@/store/store";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState<Role>("customer");
+  const [role, setRole] = useState<Exclude<Role, "admin">>("customer");
   const router = useRouter();
 
   const register = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -97,8 +97,8 @@ export default function RegisterPage() {
             </label>
             <div>
               <span className="text-sm font-medium text-[#33413b]">Join as</span>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {(["customer", "staff", "admin"] as Role[]).map((item) => (
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {(["customer", "staff"] as const).map((item) => (
                   <button
                     type="button"
                     key={item}
