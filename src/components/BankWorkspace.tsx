@@ -99,8 +99,8 @@ export default function BankWorkspace({ section = "overview" }: Props) {
   const name = auth.name || roleNames[role];
   const nav = navigation[role];
   const normalizedSection = section.toLowerCase().replaceAll("-", " ");
-  const pageTitle = role === "customer" && section === "overview"
-    ? `Welcome back, ${name.split(" ")[0]} !`
+  const pageTitle = (role === "customer" || role === "staff") && section === "overview"
+    ? `Welcome back, ${name.split(" ")[0]}!`
     : nav.find(([, key]) => key === section)?.[0] || normalizedSection;
   const today = format(new Date(), "EEEE, MMMM d");
 
