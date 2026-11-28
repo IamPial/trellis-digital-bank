@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { MoneyRequestStatus } from "@prisma/client";
+import { MoneyRequestStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 

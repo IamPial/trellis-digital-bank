@@ -1,4 +1,4 @@
-import { LoanStatus } from "@prisma/client";
+import { LoanStatus } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
