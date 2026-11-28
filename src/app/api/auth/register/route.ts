@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     if (password.length < 8) {
       return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
     }
-    if (!["customer", "staff", "admin"].includes(role)) {
+    if (role !== "customer" && role !== "staff") {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
     if (role === "customer" && !/^\d{4}$/.test(transactionPin)) {
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
           fullName,
           passwordHash,
           transactionPinHash,
-          role: role as "customer" | "staff" | "admin",
+          role,
         },
       });
 
