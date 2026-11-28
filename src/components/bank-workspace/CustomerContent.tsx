@@ -16,7 +16,7 @@ type CustomerContentProps = {
 };
 
 export default function CustomerContent({ section, setNotice }: CustomerContentProps) {
-  const dashboard = useCustomerDashboard(setNotice);
+  const dashboard = useCustomerDashboard(setNotice, section);
 
   switch (section) {
     case "overview":
@@ -52,8 +52,10 @@ export default function CustomerContent({ section, setNotice }: CustomerContentP
     case "loans":
       return (
         <LoansPage
-          loanStatus={dashboard.loanStatus}
+          loans={dashboard.loans}
+          loansLoading={dashboard.loansLoading}
           loanOpen={dashboard.loanOpen}
+          loanSubmitting={dashboard.loanSubmitting}
           onOpenLoan={dashboard.openLoan}
           onCloseLoan={dashboard.closeLoan}
           onSubmitLoan={dashboard.submitLoan}

@@ -10,3 +10,14 @@ export type AccountView = {
 };
 
 export type CashFlowMonth = { name: string; income: number; spending: number };
+
+export type CustomerLoan = {
+  id: string;
+  loanType: string;
+  requestedAmount: number | string;
+  loanDurationMonths: number;
+  status: string;
+  approvedAmount: number | string | null;
+  remainingBalance: number | string | null;
+  createdAt: string;
+};

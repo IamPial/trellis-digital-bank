@@ -5,14 +5,12 @@ import { format } from "date-fns";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   addTransaction,
-  fetchAccounts,
-  fetchLoans,
   fetchTransactions,
   selectAccount,
 } from "@/store/store";
 import type { Notice } from "@/components/shared/types";
 import { getCashFlowData, mapAccounts, type AccountResponse } from "./data";
-import type { AccountView } from "./types";
+import type { AccountView, CustomerLoan } from "./types";
 
 const initialAccounts: AccountView[] = [
   { id: "", key: "checking", label: "Checking", last: "4821", balance: 24680.45, type: "Savings Account", status: "Active", limit: "$10,000/day" },
@@ -20,7 +18,7 @@ const initialAccounts: AccountView[] = [
   { id: "", key: "business", label: "Business", last: "7734", balance: 5420.1, type: "Business Account", status: "Active", limit: "$25,000/day" },
 ];
 
-export default function useCustomerDashboard(setNotice: Notice) {
+export default function useCustomerDashboard(setNotice: Notice, section: string) {
   const dispatch = useAppDispatch();
   const transactions = useAppSelector((state) => state.transactions.items);
   const selectedAccount = useAppSelector((state) => state.accounts.selected);
@@ -29,21 +27,41 @@ export default function useCustomerDashboard(setNotice: Notice) {
   const [transferOpen, setTransferOpen] = useState(false);
   const [requestOpen, setRequestOpen] = useState(false);
   const [loanOpen, setLoanOpen] = useState(false);
-  const [loanStatus, setLoanStatus] = useState("Pending");
+  const [loans, setLoans] = useState<CustomerLoan[]>([]);
+  const [loansLoading, setLoansLoading] = useState(true);
+  const [loanSubmitting, setLoanSubmitting] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchAccounts());
-    dispatch(fetchTransactions());
-    dispatch(fetchLoans());
-    fetch("/api/banking/accounts")
-      .then(async (response) => response.ok
-        ? (await response.json()) as { accounts: AccountResponse[] }
-        : null)
-      .then((data) => {
-        if (data?.accounts) setAccounts(mapAccounts(data.accounts));
-      })
-      .catch(() => undefined);
-  }, [dispatch]);
+    const refreshCustomerData = async () => {
+      const [accountsResponse, loansResponse] = await Promise.all([
+        fetch("/api/banking/accounts", { cache: "no-store" }),
+        fetch("/api/banking/loans", { cache: "no-store" }),
+      ]);
+      if (!accountsResponse.ok || !loansResponse.ok) {
+        throw new Error("Unable to refresh your account and loan details.");
+      }
+
+      const [accountData, loanData] = await Promise.all([
+        accountsResponse.json() as Promise<{ accounts: AccountResponse[] }>,
+        loansResponse.json() as Promise<{ loans: CustomerLoan[] }>,
+      ]);
+      setAccounts(mapAccounts(accountData.accounts));
+      setLoans(loanData.loans);
+      setLoansLoading(false);
+      dispatch(fetchTransactions());
+    };
+
+    const refresh = () => {
+      void refreshCustomerData().catch(() => {
+        setLoansLoading(false);
+        setNotice("Unable to refresh your account and loan details.", "error");
+      });
+    };
+
+    refresh();
+    window.addEventListener("focus", refresh);
+    return () => window.removeEventListener("focus", refresh);
+  }, [dispatch, section, setNotice]);
 
   const submitTransfer = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -110,25 +128,33 @@ export default function useCustomerDashboard(setNotice: Notice) {
   const submitLoan = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/banking/loans", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        loanType: String(form.get("loanType") || "Personal Loan"),
-        requestedAmount: Number(form.get("amount")),
-        loanDurationMonths: Number(form.get("duration")),
-        monthlyIncome: Number(form.get("income")),
-        employmentStatus: String(form.get("employment") || "Employed"),
-        description: String(form.get("description") || ""),
-      }),
-    });
-    if (!response.ok) {
-      setNotice("Loan application could not be submitted.", "error");
-      return;
+    setLoanSubmitting(true);
+    try {
+      const response = await fetch("/api/banking/loans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          loanType: String(form.get("loanType") || "Personal Loan"),
+          requestedAmount: Number(form.get("amount")),
+          loanDurationMonths: Number(form.get("duration")),
+          monthlyIncome: Number(form.get("income")),
+          employmentStatus: String(form.get("employment") || "Employed"),
+          description: String(form.get("description") || ""),
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setNotice(result.error || "Loan application could not be submitted.", "error");
+        return;
+      }
+      setLoans((currentLoans) => [result.loan as CustomerLoan, ...currentLoans]);
+      setLoanOpen(false);
+      setNotice("Loan application submitted for review.");
+    } catch {
+      setNotice("Loan application could not be submitted. Check your connection and try again.", "error");
+    } finally {
+      setLoanSubmitting(false);
     }
-    setLoanOpen(false);
-    setLoanStatus("Under Review");
-    setNotice("Loan application submitted for review.");
   };
 
 
@@ -149,7 +175,9 @@ export default function useCustomerDashboard(setNotice: Notice) {
     accountQuery,
     cashFlowData: getCashFlowData(transactions),
     loanOpen,
-    loanStatus,
+    loans,
+    loansLoading,
+    loanSubmitting,
     requestOpen,
     selectedAccount,
     transactions,
